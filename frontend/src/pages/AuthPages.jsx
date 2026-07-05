@@ -137,7 +137,6 @@ export const LoginPage = () => {
   const [error, setError]     = useState("");
   const [loading, setLoading] = useState(false);
   const [showPwd, setShowPwd] = useState(false);
-  const [showPwd, setShowPwd] = useState(false);
 
   const applyDemo = (role) => {
     setForm(f => ({ ...f, role, usernameOrEmail: DEMO_USERS[role], password: DEMO_PASSWORD }));

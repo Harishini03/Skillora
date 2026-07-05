@@ -415,6 +415,7 @@ export const SignupPage = () => {
   });
   const [role, setRole]   = useState(normalizeRole(signupDraft.role));
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [showSignupPwd, setShowSignupPwd] = useState(false);
   const [form, setForm]   = useState({
     name: signupDraft.name || "", email: signupDraft.email || "",
@@ -436,17 +437,22 @@ export const SignupPage = () => {
     e.preventDefault();
     setError("");
     if (!form.name || !form.email || !form.username || !form.password) { setError("Please fill all required fields"); return; }
+    const allowedSpecial = "@#$%^&+=!";
+    const hasSpecial = [...form.password].some(c => allowedSpecial.includes(c));
     if (form.password.length < 8 || !/[A-Z]/.test(form.password) || !/[a-z]/.test(form.password)
-        || !/\d/.test(form.password) || !/[^A-Za-z0-9]/.test(form.password)) {
-      setError("Password must be 8+ chars with uppercase, lowercase, number and special character.");
+        || !/\d/.test(form.password) || !hasSpecial) {
+      setError(`Password must be 8+ chars with uppercase, lowercase, number and a special character (${allowedSpecial}).`);
       return;
     }
     if (role === "STUDENT" && !form.departmentName.trim()) { setError("Please enter your department name"); return; }
+    setLoading(true);
     try {
       const data = await signup({ ...form, role, skillIds: role === "STUDENT" ? form.skillIds : [], cgpa: role === "STUDENT" ? Number(form.cgpa) : 0 });
       localStorage.removeItem(SIGNUP_DRAFT_KEY);
       navigate(homeByRole(data.portalRole || role));
-    } catch (e) { setError(e.response?.data?.message || "Signup failed"); }
+    } catch (e) {
+      setError(e.response?.data?.message || e.response?.data?.error || "Signup failed. Please try again.");
+    } finally { setLoading(false); }
   };
 
   const handleFirebaseGoogleSignup = async () => {
@@ -550,8 +556,8 @@ export const SignupPage = () => {
 
           {error && <p className="text-xs text-rose-600 md:col-span-2">{error}</p>}
 
-          <button type="submit" className="md:col-span-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-500 py-2.5 font-bold text-white shadow-lg hover:opacity-90 transition">
-            Create Account
+          <button type="submit" className="md:col-span-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-500 py-2.5 font-bold text-white shadow-lg hover:opacity-90 transition disabled:opacity-60" disabled={loading}>
+            {loading ? "Creating account..." : "Create Account"}
           </button>
         </form>
 

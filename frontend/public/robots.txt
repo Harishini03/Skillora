@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+
+# Disallow authenticated pages
+Disallow: /student/
+Disallow: /staff/
+Disallow: /recruiter/
+
+# Allow public pages
+Allow: /
+Allow: /login
+Allow: /signup
+
+Sitemap: https://skillora.com/sitemap.xml

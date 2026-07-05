@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        pre { background: #f4f4f4; padding: 10px; border-radius: 5px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Student Dashboard API Test</h1>
+    
+    <div>
+        <h2>Step 1: Login</h2>
+        <button onclick="testLogin()">Test Login</button>
+        <div id="loginResult"></div>
+    </div>
+    
+    <div>
+        <h2>Step 2: Get Dashboard</h2>
+        <button onclick="testDashboard()">Get Dashboard</button>
+        <div id="dashboardResult"></div>
+    </div>
+
+    <script>
+        let token = null;
+
+        async function testLogin() {
+            const result = document.getElementById('loginResult');
+            result.innerHTML = '<p class="info">Testing login...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:8080/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: 'student.demo',
+                        password: 'Skillora@123'
+                    })
+                });
+                
+                if (!response.ok) {
+                    const text = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${text}`);
+                }
+                
+                const data = await response.json();
+                token = data.token;
+                result.innerHTML = `
+                    <p class="success">✓ Login successful!</p>
+                    <p>Token: ${token.substring(0, 30)}...</p>
+                `;
+            } catch (error) {
+                result.innerHTML = `<p class="error">✗ Login failed: ${error.message}</p>`;
+            }
+        }
+
+        async function testDashboard() {
+            const result = document.getElementById('dashboardResult');
+            
+            if (!token) {
+                result.innerHTML = '<p class="error">Please login first!</p>';
+                return;
+            }
+            
+            result.innerHTML = '<p class="info">Fetching dashboard...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:8080/api/student/dashboard', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    const text = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${text}`);
+                }
+                
+                const data = await response.json();
+                result.innerHTML = `
+                    <p class="success">✓ Dashboard loaded successfully!</p>
+                    <h3>Dashboard Data:</h3>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                    <h3>Readiness Score: ${data.readinessScore}%</h3>
+                    <p><strong>Name:</strong> ${data.name}</p>
+                    <p><strong>Department:</strong> ${data.department}</p>
+                    <p><strong>CGPA:</strong> ${data.cgpa}</p>
+                    <h4>Progress:</h4>
+                    <ul>
+                        <li>Aptitude: ${data.aptitudeProgress}%</li>
+                        <li>Coding: ${data.codingProgress}%</li>
+                        <li>Soft Skills: ${data.softSkillsProgress}%</li>
+                    </ul>
+                    <h4>Weak Areas:</h4>
+                    <ul>${data.weakAreas.map(w => `<li>${w}</li>`).join('')}</ul>
+                    <h4>Recommendations:</h4>
+                    <ul>${data.recommendations.map(r => `<li>${r}</li>`).join('')}</ul>
+                `;
+            } catch (error) {
+                result.innerHTML = `<p class="error">✗ Dashboard fetch failed: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+HELP.md
+.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+### Application Logs ###
+*.log
+*.out
+*.err
+logs/
+*.trace.db
+*.lock.db
+
+### Database Files ###
+/data/
+*.mv.db
+*.db
+
+### OS Files ###
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+### Environment ###
+.env
+.env.local
+.env.*.local
+
+### Frontend ###
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/coverage/
+
+### Production secrets — NEVER commit ────────────────
+.env.production
+*.env.production
+firebase-service-account*.json
+serviceAccountKey*.json
+.env.prod
+
+### Build artifacts ───────────────────────────────────
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+bootrun.err
+bootrun.out
+
+### Test coverage ────────────────────────────────────
+/build/reports/
+/build/jacoco/

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Analytics</title>
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+<div class="shell analytics-shell">
+    <header class="topbar">
+        <div class="brand">Placement<span>IQ</span></div>
+        <nav class="nav-links">
+            <a href="/">Home</a>
+            <a href="/student-dashboard.html">Student</a>
+            <a href="/staff-dashboard.html">Recruiter</a>
+            <a href="/analytics.html">Analytics</a>
+        </nav>
+        <div class="nav-cta">
+            <a class="button ghost" href="/login.html">Login</a>
+        </div>
+    </header>
+
+    <section class="hero-grid analytics-hero-grid">
+        <div class="hero analytics-hero">
+            <span class="analytics-kicker">Recruiter Command Center</span>
+            <h1>Talent Analytics Intelligence</h1>
+            <p>Track readiness, identify hiring risk early, and prioritize high-impact recruitment decisions with real-time talent performance signals.</p>
+            <div class="hero-actions">
+                <span class="pill">Live Performance Signals</span>
+                <span class="pill">Campus Hiring Forecast</span>
+            </div>
+        </div>
+        <div class="hero-card analytics-command-card">
+            <h3>Hiring Readiness Snapshot</h3>
+            <p id="hiringNarrative">Loading trend insights from current placement and test data.</p>
+            <div class="stat-grid analytics-stat-grid">
+                <div class="stat"><strong id="kpiPlacementIndex">--</strong><span>Placement Index</span></div>
+                <div class="stat"><strong id="kpiReadiness">--</strong><span>Readiness Score</span></div>
+                <div class="stat"><strong id="kpiTopDepartment">--</strong><span>Top Department</span></div>
+                <div class="stat"><strong id="kpiRiskTopic">--</strong><span>Risk Topic</span></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="section-head">
+            <h2 class="section-title">Performance visuals</h2>
+            <div class="analytics-controls">
+                <label for="chartViewMode">View</label>
+                <select id="chartViewMode">
+                    <option value="bar">Bar</option>
+                    <option value="line">Line</option>
+                </select>
+                <label for="departmentMetric">Department Metric</label>
+                <select id="departmentMetric">
+                    <option value="composite">Composite</option>
+                    <option value="aptitude">Aptitude</option>
+                    <option value="dsa">DSA</option>
+                    <option value="mock">Mock</option>
+                </select>
+            </div>
+        </div>
+        <div class="card-grid analytics-card-grid">
+            <div class="card analytics-card">
+                <h3>Placement vs Final Score</h3>
+                <canvas id="placementChart" class="chart"></canvas>
+            </div>
+            <div class="card analytics-card">
+                <h3>Difficulty vs Performance</h3>
+                <canvas id="difficultyChart" class="chart"></canvas>
+            </div>
+            <div class="card analytics-card">
+                <h3>Weak Topics</h3>
+                <canvas id="topicChart" class="chart"></canvas>
+            </div>
+            <div class="card analytics-card">
+                <h3>Department Performance</h3>
+                <canvas id="departmentChart" class="chart"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <section class="section analytics-insights">
+        <div class="panel-card analytics-insight-card">
+            <h3>Recruiter Highlights</h3>
+            <ul id="insightList" class="list"></ul>
+        </div>
+        <div class="panel-card analytics-insight-card">
+            <h3>Department Leaderboard</h3>
+            <table class="table analytics-table">
+                <thead>
+                <tr>
+                    <th>Department</th>
+                    <th>Composite</th>
+                    <th>Aptitude</th>
+                    <th>DSA</th>
+                    <th>Mock</th>
+                </tr>
+                </thead>
+                <tbody id="departmentLeaderboard"></tbody>
+            </table>
+        </div>
+    </section>
+</div>
+<script src="/js/analytics.js"></script>
+</body>
+</html>

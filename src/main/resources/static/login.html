@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login - Skillora</title>
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+<body class="recruit-login-page">
+<main class="recruit-login-shell">
+    <section class="recruit-login-card">
+        <section class="recruit-login-left">
+            <div class="recruit-logo">Skillora <span>Portal</span></div>
+            <h1>Welcome back</h1>
+            <p>Sign in to continue your placement readiness journey.</p>
+
+            <label for="login-username">Username or Email</label>
+            <input id="login-username" type="text" placeholder="amit.kumar@example.com" autocomplete="username">
+
+            <label for="login-password">Password</label>
+            <input id="login-password" type="password" placeholder="Enter your password" autocomplete="current-password">
+
+            <button class="button recruit-login-btn" id="loginBtn">Login</button>
+            <p id="loginStatus"></p>
+
+            <div class="recruit-divider">or</div>
+            <button class="recruit-google-btn" id="googleLoginBtn" type="button">Continue with Google</button>
+
+            <div class="recruit-footline">
+                <span>New here?</span>
+                <a href="/signup.html">Create account</a>
+            </div>
+        </section>
+
+        <section class="recruit-login-right">
+            <span class="recruit-chip">Mock Test - 12:00 PM - 1:00 PM</span>
+            <div class="recruit-overlay-card">
+                <h3>Score Highlights</h3>
+                <p>Aptitude Test</p>
+                <div class="recruit-score">79%</div>
+                <ul>
+                    <li>Java</li>
+                    <li>DBMS</li>
+                    <li>Problem Solving</li>
+                </ul>
+            </div>
+            <div class="recruit-caption">Join thousands of students to boost your placement skills</div>
+        </section>
+    </section>
+</main>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="/js/auth.js"></script>
+</body>
+</html>

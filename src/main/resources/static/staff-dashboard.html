@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Staff Dashboard</title>
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+<div class="shell">
+    <header class="topbar">
+        <div class="brand"><span class="brand-icon">S</span>Skillora</div>
+        <nav class="nav-links">
+            <a href="/">Home</a>
+            <a href="/student-dashboard.html">Student</a>
+            <a href="/staff-dashboard.html">Recruiter</a>
+            <a href="/analytics.html">Analytics</a>
+        </nav>
+        <div class="nav-cta">
+            <a class="button ghost" href="/login.html">Switch Account</a>
+        </div>
+    </header>
+
+    <section class="hero-grid">
+        <div class="hero">
+            <h1>Recruiter & Placement Dashboard</h1>
+            <p>Monitor eligibility, performance, and shortlisting pipelines for every department and hiring partner.</p>
+            <div class="nav-cta">
+                <a class="button" href="/analytics.html">View Analytics</a>
+                <a class="button secondary" href="/student-dashboard.html">Preview Student View</a>
+            </div>
+        </div>
+        <div class="hero-card">
+            <h3>Hiring Cycle Pulse</h3>
+            <p>Run campus drives with transparent scoring and ranking.</p>
+            <div class="stat-grid">
+                <div class="stat"><strong>5</strong><span>Live Drives</span></div>
+                <div class="stat"><strong>42</strong><span>Offers</span></div>
+                <div class="stat"><strong>18</strong><span>Shortlists</span></div>
+                <div class="stat"><strong>92%</strong><span>Attendance</span></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2 class="section-title">Placement KPIs</h2>
+        <div class="card-grid" id="staffMetrics"></div>
+    </section>
+
+    <section class="section">
+        <h2 class="section-title">Recruiter workflow</h2>
+        <div class="card-grid">
+            <div class="card">
+                <h3>Shortlist Queue</h3>
+                <ul class="list">
+                    <li>Filter by department, CGPA, and test scores</li>
+                    <li>Rank candidates by eligibility weightage</li>
+                    <li>Export shortlisted students to recruiters</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Upcoming Drives</h3>
+                <ul class="list">
+                    <li>Infosys - 26 Mar, 10:00 AM</li>
+                    <li>TCS - 30 Mar, 2:00 PM</li>
+                    <li>Amazon - 02 Apr, 9:00 AM</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Offer Funnel</h3>
+                <ul class="list">
+                    <li>Shortlisted: 180</li>
+                    <li>Interviewed: 120</li>
+                    <li>Offers: 42</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2 class="section-title">Department Analysis</h2>
+        <div class="card">
+            <table class="table" id="departmentTable"></table>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2 class="section-title">Skill Gap Analysis</h2>
+        <div class="card">
+            <table class="table" id="skillTable"></table>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2 class="section-title">Students</h2>
+        <div class="card">
+            <table class="table" id="studentTable"></table>
+        </div>
+    </section>
+</div>
+<script src="/js/staff.js"></script>
+</body>
+</html>

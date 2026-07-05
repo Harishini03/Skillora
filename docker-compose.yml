@@ -1,0 +1,120 @@
+version: '3.8'
+
+# ══════════════════════════════════════════════════════════
+# SKILLORA — Docker Compose (Production Stack)
+# Usage:
+#   1. cp .env.production .env  (fill in your values)
+#   2. docker-compose up --build -d
+#   3. Visit http://localhost:3000 (frontend)
+#        and http://localhost:8080 (API)
+# ══════════════════════════════════════════════════════════
+
+services:
+
+  # ── MySQL Database ────────────────────────────────────
+  db:
+    image: mysql:8.0
+    container_name: skillora-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: skillora_db
+      MYSQL_USER: skillora_user
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    ports:
+      - "3306:3306"        # Remove this in production — internal only
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    networks:
+      - skillora-net
+
+  # ── Spring Boot Backend ───────────────────────────────
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: skillora-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      # Database
+      DB_URL: jdbc:mysql://db:3306/skillora_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8
+      DB_USERNAME: skillora_user
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_POOL_SIZE: 20
+      # Security
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-86400000}
+      # OAuth / Firebase
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      FIREBASE_SERVICE_ACCOUNT_JSON: ${FIREBASE_SERVICE_ACCOUNT_JSON:-}
+      FIREBASE_PROJECT_ID: skillora-94d25
+      # AI
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      GROQ_MODEL: ${GROQ_MODEL:-llama-3.3-70b-versatile}
+      # CORS — must match frontend URL
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:5173}
+    volumes:
+      - uploads:/app/uploads
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    networks:
+      - skillora-net
+
+  # ── React Frontend ────────────────────────────────────
+  frontend:
+    image: node:20-alpine
+    container_name: skillora-frontend
+    working_dir: /app
+    restart: unless-stopped
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      # Uses the backend service name within Docker network
+      VITE_API_URL: http://backend:8080
+      VITE_FIREBASE_API_KEY: AIzaSyAzGupH350FvSl7fb7tnzP843kLyLEZPCw
+      VITE_FIREBASE_AUTH_DOMAIN: skillora-94d25.firebaseapp.com
+      VITE_FIREBASE_PROJECT_ID: skillora-94d25
+      VITE_FIREBASE_STORAGE_BUCKET: skillora-94d25.firebasestorage.app
+      VITE_FIREBASE_MESSAGING_SENDER_ID: "958098343020"
+      VITE_FIREBASE_APP_ID: 1:958098343020:web:557cc196c92d7ec4d7c449
+      VITE_FIREBASE_MEASUREMENT_ID: G-R1RNW325D3
+    command: >
+      sh -c "npm ci --quiet &&
+             npm run build &&
+             npx serve -s dist -l 3000"
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - skillora-net
+
+volumes:
+  mysql_data:
+    driver: local
+  uploads:
+    driver: local
+
+networks:
+  skillora-net:
+    driver: bridge

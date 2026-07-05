@@ -41,9 +41,9 @@ public class SecurityConfig {
                                 .policyDirectives("default-src 'self'; " +
                                         "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
                                         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-                                        "font-src 'self' https://fonts.gstatic.com; " +
+                                        "font-src 'self' https://fonts.gstatic.com data:; " +
                                         "img-src 'self' data: https:; " +
-                                        "connect-src 'self' https://api.groq.com;"))
+                                        "connect-src 'self' https://api.groq.com https://*.firebaseio.com https://*.googleapis.com;"))
                         .httpStrictTransportSecurity(hsts -> hsts
                                 .includeSubDomains(true)
                                 .maxAgeInSeconds(31536000))
@@ -51,7 +51,8 @@ public class SecurityConfig {
                 
                 .authorizeHttpRequests(auth -> auth
                         // Public resources
-                        .requestMatchers("/", "/index.html", "/favicon.ico", "/assets/**", "/public/**").permitAll()
+                        .requestMatchers("/", "/index.html", "/favicon.ico", "/favicon.svg",
+                                "/assets/**", "/public/**", "/robots.txt", "/sitemap.xml").permitAll()
                         
                         // Authentication endpoints (public)
                         .requestMatchers("/api/auth/**").permitAll()

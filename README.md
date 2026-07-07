@@ -261,18 +261,3 @@ See [docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md) for full production dep
 
 This project is proprietary software. All rights reserved.
 
-## 👥 Team
-
-- **Project**: Skillora - AI-Powered Placement Intelligence
-- **Architecture**: Spring Boot + React + Modern UI/UX
-- **Status**: Production-Ready
-
-## 📞 Support
-
-For issues and questions:
-- Create an issue in the repository
-- Contact the development team
-
----
-
-Built with ❤️ using Spring Boot, React, and modern web technologies.

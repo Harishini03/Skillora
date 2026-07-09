@@ -432,86 +432,128 @@ At the end, add:
     }
 
     private String fallbackRevision(SkilloraAiRequest request) {
+        String topicLower = request.getTopic().toLowerCase();
+        
+        if (topicLower.contains("sql") || topicLower.contains("join") || topicLower.contains("dbms")) {
+            return """
+                ## 📊 SQL Revision Notes
+                - **ACID properties**: Atomicity, Consistency, Isolation, Durability.
+                - **JOIN vs UNION**: JOIN combines horizontally (columns), UNION combines vertically (rows).
+                - **Indexing**: Use indexes for frequently searched columns, but avoid over-indexing to save insert/update time.
+                
+                ## 🚀 Quick Tips
+                - Always filter data using `WHERE` before joining if possible.
+                - Remember `GROUP BY` must include all non-aggregated columns in SELECT.
+                
+                ## ⚠️ Common Mistakes
+                - Missing the `ON` condition in JOINS leading to Cartesian products.
+                - Confusing `HAVING` (filters after grouping) with `WHERE` (filters before grouping).
+                """.formatted();
+        } else if (topicLower.contains("tree") || topicLower.contains("graph") || topicLower.contains("array") || topicLower.contains("dynamic")) {
+            return """
+                ## 💻 DSA Revision Notes
+                - **Arrays**: Master Two-Pointer and Sliding Window techniques.
+                - **Trees**: Know Preorder (Root-L-R), Inorder (L-Root-R), and Postorder (L-R-Root).
+                - **Graphs**: Use BFS for shortest path in unweighted graphs, DFS for topological sorting or cycle detection.
+                - Always clarify Time (Big-O) and Space constraints before coding.
+                
+                ## 🚀 Quick Tips
+                - If the array is sorted, immediately think Binary Search (O(log N)).
+                - If you need to keep track of frequencies, use a Hash Map.
+                
+                ## ⚠️ Common Mistakes
+                - Missing base cases in recursive tree traversals.
+                - Not bounds-checking array indices (`IndexOutOfBoundsException`).
+                """.formatted();
+        }
+        
         return """
-                ## Important Formulae
+                ## 📈 Aptitude Revision Notes
                 - Percentage = Part / Whole x 100
                 - Average = Total / Count
                 - Profit %% = Profit / Cost Price x 100
-                - Time complexity: one loop is usually O(n), nested loops are often O(n^2)
-
-                ## Shortcut Tricks
+                
+                ## 🚀 Shortcut Tricks
                 - Use option elimination before full calculation.
                 - Round values only when options are far apart.
-                - Draw a quick table for comparison problems.
-
-                ## Quick Tips
-                - Spend the first 10 seconds understanding the ask.
-                - Write units beside values.
-                - Recheck signs in increase/decrease problems.
-
-                ## Common Mistakes
+                
+                ## ⚠️ Common Mistakes
                 - Using final value as base in percentage questions.
                 - Forgetting to convert hours to minutes.
-                - Not reading words like except, minimum, maximum, or not.
-
-                ## Examples
-                - If 60 is 20%% of x, then x = 60 x 100 / 20 = 300.
-                - If 4 people finish work in 6 days, total work = 24 person-days.
-
-                ## Summary
+                
+                ## 🎯 Summary
                 Revise formulas, solve a few mixed questions, and maintain a mistake notebook for weak topics: %s.
                 """.formatted(String.join(", ", request.getWeakTopics()));
     }
 
     private String fallbackAdaptive(SkilloraAiRequest request) {
         String direction = request.getAccuracy() < 60 ? "Start with easier drills before moving to mixed practice." : "Move into medium drills and add timed sets.";
+        String topicLower = request.getTopic().toLowerCase();
+        
+        String notesAndMistakes;
+        if (topicLower.contains("sql") || topicLower.contains("join") || topicLower.contains("dbms")) {
+            notesAndMistakes = """
+                ## 📝 DBMS Revision Notes
+                Focus on query optimization and understanding relationships (1:1, 1:N, M:N).
+                - Use INNER JOIN for strict matches.
+                - Use LEFT JOIN for optional relationships.
+                
+                ## ⚠️ Mistakes to Avoid
+                - Ignoring NULL values in aggregate functions.
+                - Using SELECT * in production queries.
+                """;
+        } else if (topicLower.contains("tree") || topicLower.contains("graph") || topicLower.contains("array") || topicLower.contains("dynamic")) {
+            notesAndMistakes = """
+                ## 📝 DSA Revision Notes
+                Focus on breaking down problems into subproblems.
+                - Trees: Practice recursion base cases carefully.
+                - Graphs: Always track visited nodes.
+                - DP: Draw the state-transition matrix.
+                
+                ## ⚠️ Mistakes to Avoid
+                - Hardcoding array lengths.
+                - Using O(N^2) loops when O(N) HashMap would work.
+                """;
+        } else {
+            notesAndMistakes = """
+                ## 📝 Aptitude Revision Notes
+                Focus on concept recognition, unit conversion, and step-by-step solving.
+                - Percentage = Part / Whole x 100
+                - Speed = Distance / Time
+                
+                ## ⚠️ Mistakes to Avoid
+                - Rushing through question wording.
+                - Not validating answers with estimation.
+                """;
+        }
+        
         return """
-                ## Personalized Feedback
+                ## 🎯 Personalized Feedback
                 Accuracy: %.2f%%. %s
 
-                ## Weak Concepts
+                ## 🔍 Weak Concepts
                 - %s
-                - Calculation accuracy
-                - Choosing the right formula or logic pattern
-
-                ## Mistakes
-                - Rushing through question wording
-                - Not validating answers with estimation
-
-                ## Revision Notes
-                Focus on concept recognition, unit conversion, and step-by-step solving.
-
-                ## Formula Sheet
-                - Percentage = Part / Whole x 100
-                - Average = Sum / Count
-                - Speed = Distance / Time
-
-                ## Memory Tricks
-                - G-A-S: Given, Asked, Solve.
-                - E-C-V: Estimate, Calculate, Verify.
-
-                ## Five Easy Questions
+                
+                %s
+                
+                ## 🟢 Five Easy Questions
                 %s
 
-                ## Five Medium Questions
+                ## 🟡 Five Medium Questions
                 %s
 
-                ## Three Hard Questions
+                ## 🔴 Three Hard Questions
                 %s
 
-                ## Daily Practice Plan
-                - Day 1: Revise formulas and solve 10 easy questions.
+                ## 📅 Daily Practice Plan
+                - Day 1: Revise formulas/concepts and solve 10 easy questions.
                 - Day 2: Solve 10 medium questions and review errors.
                 - Day 3: Take a 20-minute mixed quiz.
-                - Day 4: Redo wrong questions without seeing solutions.
-                - Day 5: Attempt a mock test.
-
-                ## Estimated Time to Master Topic
-                5 to 7 focused practice days.
                 """.formatted(
                 request.getAccuracy(),
                 direction,
                 request.getWeakTopics().isEmpty() ? request.getTopic() : String.join(", ", request.getWeakTopics()),
+                notesAndMistakes,
                 numberedQuestions(request, 5, "Easy"),
                 numberedQuestions(request, 5, "Medium"),
                 numberedQuestions(request, 3, "Hard")

@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async ({ usernameOrEmail, password, role: portalRole }) => {
     clearStoredSession();
-    const { data } = await api.post("/login", { usernameOrEmail, password, role: toApiRole(portalRole) });
+    const { data } = await api.post("/api/auth/login", { usernameOrEmail, password, role: toApiRole(portalRole) });
     commitSession(data, portalRole);
     return data;
   };
@@ -64,14 +64,14 @@ export const AuthProvider = ({ children }) => {
   const signup = async (payload) => {
     clearStoredSession();
     const { role, ...rest } = payload;
-    const { data } = await api.post("/signup", { ...rest, role: toApiRole(role) });
+    const { data } = await api.post("/api/auth/signup", { ...rest, role: toApiRole(role) });
     commitSession(data, role);
     return data;
   };
 
   const googleLogin = async ({ email, name, role, departmentId, departmentName }) => {
     clearStoredSession();
-    const { data } = await api.post("/google-login", {
+    const { data } = await api.post("/api/auth/google-login", {
       email,
       name,
       role: toApiRole(role),

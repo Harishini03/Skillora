@@ -63,8 +63,10 @@ export const ProblemSolvePage = () => {
 
   const loadSubmissions = async () => {
     try {
-      const response = await api.get(`/api/coding/problems/${problemId}/submissions`);
-      setSubmissions(Array.isArray(response.data) ? response.data : []);
+      const response = await api.get("/api/coding/submissions");
+      // Filter to only this problem's submissions
+      const all = Array.isArray(response.data) ? response.data : [];
+      setSubmissions(all.filter(s => String(s.problemId) === String(problemId)));
     } catch (e) {
       // Ignore submission loading errors
     }

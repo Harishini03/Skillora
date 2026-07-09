@@ -27,22 +27,19 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
+      // All backend calls go through /api — single proxy rule covers everything
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
         secure: false,
       },
-      '/login': {
+      // Legacy alias routes (StaffAliasController, StudentAliasController)
+      '/top-students': {
         target: 'http://localhost:8080',
         changeOrigin: true,
         secure: false,
       },
-      '/signup': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-        secure: false,
-      },
-      '/google-login': {
+      '/student-details': {
         target: 'http://localhost:8080',
         changeOrigin: true,
         secure: false,

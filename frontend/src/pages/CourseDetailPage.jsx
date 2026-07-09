@@ -12,6 +12,7 @@ export const CourseDetailPage = () => {
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [enrollmentId, setEnrollmentId] = useState(null);
   const [completingLesson, setCompletingLesson] = useState(false);
 
   useEffect(() => {
@@ -22,21 +23,28 @@ export const CourseDetailPage = () => {
     setLoading(true);
     setError("");
     try {
-      const [courseRes, modulesRes, enrollmentRes] = await Promise.all([
-        api.get(`/api/courses/${courseId}`),
-        api.get(`/api/courses/${courseId}/modules`),
-        api.get(`/api/courses/${courseId}/enrollment`).catch(() => ({ data: null }))
+      // /api/courses/{id}/content returns course + modules + lessons in one call
+      const [courseRes, enrollmentsRes] = await Promise.all([
+        api.get(`/api/courses/${courseId}/content`),
+        api.get("/api/courses/my-enrollments").catch(() => ({ data: [] }))
       ]);
 
-      setCourse(courseRes.data);
-      setModules(Array.isArray(modulesRes.data) ? modulesRes.data : []);
-      setIsEnrolled(!!enrollmentRes.data);
+      const content = courseRes.data;
+      setCourse(content);
+
+      const modulesData = Array.isArray(content?.modules) ? content.modules : [];
+      setModules(modulesData);
+
+      // Check if enrolled
+      const enrollments = Array.isArray(enrollmentsRes.data) ? enrollmentsRes.data : [];
+      const enrollment = enrollments.find(e => String(e.courseId) === String(courseId) || String(e.id) === String(courseId));
+      setIsEnrolled(!!enrollment);
+      if (enrollment) setEnrollmentId(enrollment.enrollmentId || enrollment.id);
 
       // Auto-expand first module and load first lesson
-      if (modulesRes.data && modulesRes.data.length > 0) {
-        const firstModule = modulesRes.data[0];
+      if (modulesData.length > 0) {
+        const firstModule = modulesData[0];
         setExpandedModules({ [firstModule.id]: true });
-        
         if (firstModule.lessons && firstModule.lessons.length > 0) {
           setCurrentLesson(firstModule.lessons[0]);
         }
@@ -70,13 +78,12 @@ export const CourseDetailPage = () => {
   };
 
   const markLessonComplete = async (lessonId) => {
-    if (!isEnrolled) return;
-    
+    if (!isEnrolled || !enrollmentId) return;
     setCompletingLesson(true);
     setError("");
     try {
-      await api.post(`/api/courses/lessons/${lessonId}/complete`);
-      await loadCourseData(); // Reload to update progress
+      await api.post(`/api/courses/enrollments/${enrollmentId}/lessons/${lessonId}/complete`);
+      await loadCourseData();
     } catch (e) {
       setError(e.response?.data?.message || "Failed to mark lesson as complete.");
     } finally {

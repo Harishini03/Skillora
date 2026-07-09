@@ -47,6 +47,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("pi_token", auth.token);
     localStorage.setItem("pi_session", JSON.stringify(auth));
     setSession(auth);
+    // Return the enriched auth object so callers get portalRole
+    return auth;
   };
 
   const clearStoredSession = () => {
@@ -57,45 +59,31 @@ export const AuthProvider = ({ children }) => {
   const login = async ({ usernameOrEmail, password, role: portalRole }) => {
     clearStoredSession();
     const { data } = await api.post("/api/auth/login", { usernameOrEmail, password, role: toApiRole(portalRole) });
-    commitSession(data, portalRole);
-    return data;
+    return commitSession(data, portalRole);
   };
 
   const signup = async (payload) => {
     clearStoredSession();
     const { role, ...rest } = payload;
     const { data } = await api.post("/api/auth/signup", { ...rest, role: toApiRole(role) });
-    commitSession(data, role);
-    return data;
+    return commitSession(data, role);
   };
 
   const googleLogin = async ({ email, name, role, departmentId, departmentName }) => {
     clearStoredSession();
     const { data } = await api.post("/api/auth/google-login", {
-      email,
-      name,
-      role: toApiRole(role),
-      departmentId,
-      departmentName,
+      email, name, role: toApiRole(role), departmentId, departmentName,
     });
-    commitSession(data, role);
-    return data;
+    return commitSession(data, role);
   };
 
   const firebaseLogin = async ({ firebaseUser, role, departmentName, departmentId, cgpa, level, interests }) => {
     clearStoredSession();
     const idToken = await firebaseUser.getIdToken();
     const { data } = await api.post("/api/auth/firebase-login", {
-      idToken,
-      role: toApiRole(role),
-      departmentName,
-      departmentId,
-      cgpa,
-      level,
-      interests,
+      idToken, role: toApiRole(role), departmentName, departmentId, cgpa, level, interests,
     });
-    commitSession(data, role);
-    return data;
+    return commitSession(data, role);
   };
 
   const logout = () => {

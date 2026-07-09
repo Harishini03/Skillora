@@ -70,6 +70,8 @@ frontend/coverage/
 ### Production secrets — NEVER commit ────────────────
 .env.production
 *.env.production
+# Allow frontend/.env.production — it contains only public Firebase keys, no secrets
+!frontend/.env.production
 firebase-service-account*.json
 serviceAccountKey*.json
 .env.prod

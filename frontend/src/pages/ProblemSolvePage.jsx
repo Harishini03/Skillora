@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../lib/api";
 
@@ -43,6 +43,56 @@ export const ProblemSolvePage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
+  const textareaRef = useRef(null);
+  const gutterRef = useRef(null);
+  const [consoleExpanded, setConsoleExpanded] = useState(false);
+  const [consoleTab, setConsoleTab] = useState("testcases"); // testcases | results
+  const [customInput, setCustomInput] = useState("");
+
+  const handleTextareaScroll = () => {
+    if (textareaRef.current && gutterRef.current) {
+      gutterRef.current.scrollTop = textareaRef.current.scrollTop;
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Tab") {
+      e.preventDefault();
+      const start = e.target.selectionStart;
+      const end = e.target.selectionEnd;
+      const val = e.target.value;
+      const nextCode = val.substring(0, start) + "    " + val.substring(end);
+      setCode(nextCode);
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.selectionStart = textareaRef.current.selectionEnd = start + 4;
+        }
+      }, 0);
+    }
+    const brackets = {
+      "(": ")",
+      "[": "]",
+      "{": "}",
+      '"': '"',
+      "'": "'",
+      "`": "`"
+    };
+    if (brackets[e.key] !== undefined) {
+      e.preventDefault();
+      const start = e.target.selectionStart;
+      const end = e.target.selectionEnd;
+      const val = e.target.value;
+      const closing = brackets[e.key];
+      const nextCode = val.substring(0, start) + e.key + closing + val.substring(end);
+      setCode(nextCode);
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.selectionStart = textareaRef.current.selectionEnd = start + 1;
+        }
+      }, 0);
+    }
+  };
+
   useEffect(() => {
     loadProblem();
     loadSubmissions();
@@ -54,6 +104,9 @@ export const ProblemSolvePage = () => {
     try {
       const response = await api.get(`/api/coding/problems/${problemId}`);
       setProblem(response.data);
+      if (response.data?.examples?.length > 0) {
+        setCustomInput(response.data.examples[0].input || "");
+      }
     } catch (e) {
       setError(e.response?.data?.message || "Failed to load problem.");
     } finally {
@@ -82,12 +135,15 @@ export const ProblemSolvePage = () => {
     setRunning(true);
     setError("");
     setTestResults(null);
+    setConsoleExpanded(true); // Open the drawer immediately when running
+    setConsoleTab("results");
     
     try {
       const response = await api.post("/api/coding/execute", {
         problemId: parseInt(problemId),
         language,
-        code
+        code,
+        customInput
       });
 
       setTestResults(response.data);
@@ -101,6 +157,8 @@ export const ProblemSolvePage = () => {
   const submitSolution = async () => {
     setSubmitting(true);
     setError("");
+    setConsoleExpanded(true); // Open immediately on submit
+    setConsoleTab("results");
     
     try {
       const response = await api.post("/api/coding/submit", {
@@ -330,66 +388,168 @@ export const ProblemSolvePage = () => {
 
           {/* Code Editor — line numbers + textarea */}
           <div className="flex flex-1 overflow-hidden" style={{fontFamily:"var(--font-mono)"}}>
+            {/* Gutter */}
+            <div
+              ref={gutterRef}
+              style={{
+                width: "48px",
+                background: "#0d1117",
+                color: "#565c64",
+                padding: "16px 8px 16px 0",
+                textAlign: "right",
+                userSelect: "none",
+                borderRight: "1px solid #21262d",
+                fontFamily: "var(--font-mono)",
+                fontSize: "13px",
+                lineHeight: "22px",
+                overflow: "hidden",
+              }}
+            >
+              {Array.from({ length: code.split("\n").length || 1 }, (_, i) => i + 1).map(n => (
+                <div key={n} style={{ height: "22px" }}>{n}</div>
+              ))}
+            </div>
+
+            {/* Textarea */}
             <textarea
+              ref={textareaRef}
               value={code}
               onChange={(e) => setCode(e.target.value)}
+              onScroll={handleTextareaScroll}
+              onKeyDown={handleKeyDown}
               spellCheck={false}
               placeholder="// Write your solution here..."
               style={{
-                flex:1, resize:"none", border:"none", outline:"none",
-                background:"#0d1117", color:"#e6edf3",
-                padding:"16px", fontSize:13, lineHeight:1.65,
-                fontFamily:"var(--font-mono)", caretColor:"#58a6ff",
-                tabSize:2
+                flex: 1,
+                resize: "none",
+                border: "none",
+                outline: "none",
+                background: "#0d1117",
+                color: "#e6edf3",
+                padding: "16px",
+                fontSize: "13px",
+                lineHeight: "22px",
+                fontFamily: "var(--font-mono)",
+                caretColor: "#58a6ff",
+                tabSize: 4,
+                whiteSpace: "pre",
+                overflow: "auto"
               }}
             />
           </div>
 
-          {/* Test Results */}
-          {(testResults || error) && (
-            <div className="max-h-64 overflow-y-auto border-t p-4" style={{background:"#161b22",borderColor:"#30363d"}}>
-              <h3 className="mb-3 text-sm font-bold" style={{color:"#e6edf3"}}>Test Results</h3>
-
-              {error && (
-                <div className="rounded-lg p-3 text-sm" style={{background:"rgba(248,81,73,0.1)",border:"1px solid rgba(248,81,73,0.3)",color:"#ffa198"}}>
-                  {error}
-                </div>
-              )}
-
-              {testResults && (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-lg font-bold" style={{color: testResults.allTestsPassed ? "#3fb950" : "#f85149"}}>
-                      {testResults.passedTests ?? testResults.testCasesPassed ?? 0}/{testResults.totalTests ?? testResults.testCasesTotal ?? 0} Tests Passed
-                    </span>
-                    {testResults.executionTime && (
-                      <span className="text-xs" style={{color:"#8b949e"}}>⏱ {testResults.executionTime}ms</span>
-                    )}
+          {/* LeetCode Collapsible Console Drawer */}
+          <div className="flex flex-col border-t" style={{background:"#161b22",borderColor:"#30363d"}}>
+            {/* Console Header / Toggle Bar */}
+            <div className="flex items-center justify-between px-4 py-2.5 bg-[#161b22] select-none transition">
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setConsoleExpanded(!consoleExpanded)}
+                  className="flex items-center gap-2 hover:text-white transition"
+                  style={{color: consoleExpanded ? "#e6edf3" : "#8b949e", fontSize: 13, fontWeight: "bold"}}
+                >
+                  Console {consoleExpanded ? "▼" : "▲"}
+                </button>
+                {consoleExpanded && (
+                  <div className="flex gap-4 border-l pl-4 border-[#30363d]">
+                    <button onClick={() => setConsoleTab("testcases")} className="text-[13px] font-semibold hover:text-white transition" style={{color: consoleTab === "testcases" ? "#e6edf3" : "#8b949e", borderBottom: consoleTab === "testcases" ? "2px solid #e6edf3" : "2px solid transparent"}}>Testcase</button>
+                    <button onClick={() => setConsoleTab("results")} className="text-[13px] font-semibold hover:text-white transition" style={{color: consoleTab === "results" ? "#e6edf3" : "#8b949e", borderBottom: consoleTab === "results" ? "2px solid #e6edf3" : "2px solid transparent"}}>Test Result</button>
                   </div>
-
-                  {testResults.testResults && testResults.testResults.map((test, index) => (
-                    <div key={index} className="rounded-lg p-3"
-                      style={{background: test.passed ? "rgba(63,185,80,0.08)" : "rgba(248,81,73,0.08)", border:`1px solid ${test.passed ? "rgba(63,185,80,0.2)" : "rgba(248,81,73,0.2)"}`}}>
-                      <div className="flex items-center gap-2 mb-2">
-                        <span style={{color: test.passed ? "#3fb950" : "#f85149", fontSize:14, fontWeight:700}}>
-                          {test.passed ? "✓" : "✗"}
-                        </span>
-                        <span className="text-sm font-semibold" style={{color: test.passed ? "#3fb950" : "#f85149"}}>
-                          Test Case {index + 1}
-                        </span>
-                      </div>
-                      <div className="space-y-1 text-xs" style={{color:"#8b949e",fontFamily:"var(--font-mono)"}}>
-                        {test.input && <p>Input: <span style={{color:"#e6edf3"}}>{test.input}</span></p>}
-                        {test.expectedOutput && <p>Expected: <span style={{color:"#e6edf3"}}>{test.expectedOutput}</span></p>}
-                        {test.actualOutput && <p>Got: <span style={{color:"#e6edf3"}}>{test.actualOutput}</span></p>}
-                        {test.errorMessage && <p style={{color:"#ffa198"}}>Error: {test.errorMessage}</p>}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                {testResults && !consoleExpanded && (
+                  <span
+                    className="rounded px-2 py-0.5 text-xs font-bold"
+                    style={{
+                      background: testResults.allTestsPassed ? "rgba(63,185,80,0.1)" : "rgba(248,81,73,0.1)",
+                      color: testResults.allTestsPassed ? "#3fb950" : "#f85149"
+                    }}
+                  >
+                    {testResults.allTestsPassed ? "All Passed" : "Failed"}
+                  </span>
+                )}
+              </div>
             </div>
-          )}
+
+            {/* Console Drawer Content */}
+            {consoleExpanded && (
+              <div className="overflow-y-auto p-4 border-t flex flex-col" style={{height:"240px", borderColor:"#30363d", background:"#0d1117"}}>
+                {consoleTab === "testcases" && (
+                  <div className="flex flex-col flex-1 h-full">
+                    <p className="text-xs mb-2 font-semibold" style={{color:"#8b949e"}}>Custom Input (Newline separated parameters)</p>
+                    <textarea
+                      value={customInput}
+                      onChange={(e) => setCustomInput(e.target.value)}
+                      spellCheck={false}
+                      placeholder="Enter custom test cases here..."
+                      style={{
+                        flex: 1,
+                        background: "#161b22",
+                        border: "1px solid #30363d",
+                        color: "#e6edf3",
+                        borderRadius: "6px",
+                        padding: "12px",
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "12px",
+                        outline: "none",
+                        resize: "none"
+                      }}
+                    />
+                  </div>
+                )}
+                
+                {consoleTab === "results" && (
+                  <div className="w-full">
+                    {!(testResults || error) && (
+                      <div className="text-sm py-4 text-center" style={{color:"#8b949e"}}>
+                        Run or Submit code to see test results here.
+                      </div>
+                    )}
+
+                    {error && (
+                      <div className="rounded-lg p-3 text-sm" style={{background:"rgba(248,81,73,0.1)",border:"1px solid rgba(248,81,73,0.3)",color:"#ffa198"}}>
+                        {error}
+                      </div>
+                    )}
+
+                {testResults && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between pb-2 border-b" style={{borderColor:"#21262d"}}>
+                      <span className="text-base font-bold" style={{color: testResults.allTestsPassed ? "#3fb950" : "#f85149"}}>
+                        {testResults.passedTests ?? testResults.testCasesPassed ?? 0}/{testResults.totalTests ?? testResults.testCasesTotal ?? 0} Test Cases Passed
+                      </span>
+                      {testResults.executionTime && (
+                        <span className="text-xs" style={{color:"#8b949e"}}>⏱ Execution Time: {testResults.executionTime}ms</span>
+                      )}
+                    </div>
+
+                    {testResults.testResults && testResults.testResults.map((test, index) => (
+                      <div key={index} className="rounded-lg p-3"
+                        style={{background: test.passed ? "rgba(63,185,80,0.04)" : "rgba(248,81,73,0.04)", border:`1px solid ${test.passed ? "rgba(63,185,80,0.15)" : "rgba(248,81,73,0.15)"}`}}>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span style={{color: test.passed ? "#3fb950" : "#f85149", fontSize:14, fontWeight:700}}>
+                            {test.passed ? "✓" : "✗"}
+                          </span>
+                          <span className="text-sm font-semibold" style={{color: test.passed ? "#3fb950" : "#f85149"}}>
+                            Case {index + 1}
+                          </span>
+                        </div>
+                        <div className="space-y-1 text-xs" style={{color:"#8b949e",fontFamily:"var(--font-mono)"}}>
+                          {test.input && <p>Input: <span style={{color:"#e6edf3"}}>{test.input}</span></p>}
+                          {test.expectedOutput && <p>Expected: <span style={{color:"#e6edf3"}}>{test.expectedOutput}</span></p>}
+                          {test.actualOutput && <p>Actual: <span style={{color:"#e6edf3"}}>{test.actualOutput}</span></p>}
+                          {test.errorMessage && <p style={{color:"#ffa198"}}>Error: {test.errorMessage}</p>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

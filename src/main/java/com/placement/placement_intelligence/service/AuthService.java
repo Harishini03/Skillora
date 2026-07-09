@@ -84,7 +84,7 @@ public class AuthService {
         this.firebaseTokenVerifier = firebaseTokenVerifier;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public AuthResponse login(AuthRequest request) {
         User user = findUserByUsernameOrEmail(request.getUsernameOrEmail());
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {

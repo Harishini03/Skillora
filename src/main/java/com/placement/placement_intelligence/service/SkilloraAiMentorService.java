@@ -330,66 +330,104 @@ At the end, add:
 
     private String fallbackLearn(SkilloraAiRequest request) {
         String topic = request.getTopic();
+        String topicLower = topic.toLowerCase();
+        
+        if (topicLower.contains("sql") || topicLower.contains("join") || topicLower.contains("dbms")) {
+            return """
+                ## 📖 Introduction
+                **%s** is a crucial topic for database rounds in technical interviews. It's used to efficiently organize, manipulate, and combine data across multiple tables.
+                
+                ## 🔑 Core Concepts
+                - **Normalization**: Reducing redundancy in data by organizing schemas (1NF, 2NF, 3NF).
+                - **INNER JOIN**: Returns records that have matching values in both tables.
+                - **LEFT (OUTER) JOIN**: Returns all records from the left table, and matched records from the right.
+                - **ACID Properties**: Atomicity, Consistency, Isolation, Durability.
+                
+                ## 📐 Syntax & Examples
+                ```sql
+                SELECT e.name, d.dept_name
+                FROM employees e
+                INNER JOIN departments d ON e.dept_id = d.id;
+                ```
+                
+                ## ⚡ Shortcuts & Tricks
+                - Always draw a Venn diagram in your head when visualizing Joins.
+                - Use LEFT JOIN with a `WHERE right.id IS NULL` check to find "missing" records.
+                
+                ## ❌ Common Mistakes
+                - Forgetting the ON clause which results in a massive Cartesian product (CROSS JOIN).
+                - Using a subquery when a JOIN would be significantly faster.
+                
+                ## 💡 Interview Tips
+                - Interviewers at top companies often ask you to optimize a query or explain execution plans. Always mention indexing the joining columns!
+                
+                ## 📌 Quick Revision Summary
+                - Inner = Intersection. Left = Left + Intersection.
+                - Ensure primary keys and foreign keys are indexed.
+                """.formatted(topic);
+        } else if (topicLower.contains("tree") || topicLower.contains("graph") || topicLower.contains("array") || topicLower.contains("dynamic")) {
+            return """
+                ## 📖 Introduction
+                **%s** is a foundational algorithmic concept that frequently appears in data structure rounds of top product companies.
+                
+                ## 🔑 Core Concepts
+                - **Traversal / Iteration**: Systematically visiting every element.
+                - **Time & Space Complexity**: Measuring how execution scales with input size (Big-O notation).
+                - **DFS (Depth First Search)**: Goes as deep as possible before backtracking (uses a Stack or Recursion).
+                - **BFS (Breadth First Search)**: Explores level by level (uses a Queue).
+                
+                ## ⚡ Shortcuts & Tricks
+                - If the question asks for the "shortest path" in an unweighted grid/graph, always use BFS.
+                - If it involves permutations, combinations, or backtracking, think DFS/Recursion.
+                - For arrays, the Two-Pointer or Sliding Window techniques solve 80%% of O(N) optimization problems.
+                
+                ## ❌ Common Mistakes
+                - Forgetting to track a `visited` state, leading to infinite loops!
+                - Not handling base cases for null/empty inputs properly (`if input == null return`).
+                
+                ## 💡 Interview Tips
+                - Always start by drawing out a small example on the whiteboard before writing code.
+                - Clarify constraints first: Can numbers be negative? Is the array sorted?
+                
+                ## 📌 Quick Revision Summary
+                - Search in BST: O(log N) average.
+                - Graph DFS/BFS: O(V + E).
+                - Array Sort: O(N log N).
+                """.formatted(topic);
+        }
+        
         return """
-                ## Topic Introduction
-                %s is a common placement preparation area. Companies use it to check whether you can read a problem, identify the pattern, and solve it under time pressure.
-
-                ## Core Concepts
-                - Understand the question before calculating.
-                - Convert word statements into variables, ratios, tables, or equations.
-                - Check whether the answer should increase, decrease, or stay proportional.
-                - In coding topics, choose the data structure before writing logic.
-
-                ## Important Formulae
+                ## 📖 Introduction
+                **%s** is a common placement preparation area. Companies use it to check whether you can read a problem, identify the pattern, and solve it efficiently under time pressure.
+                
+                ## 🔑 Core Concepts
+                - Understand the question completely before you start calculating.
+                - Convert word statements into variables, ratios, tables, or linear equations.
+                - Identify if the answer should increase, decrease, or stay proportional.
+                
+                ## 📐 Important Formulae
                 - Percentage change = (Change / Original) x 100
                 - Average = Sum of values / Number of values
                 - Speed = Distance / Time
                 - Work rate = Work done / Time taken
-
-                ## Shortcuts & Tricks
-                - Estimate first, then calculate.
-                - Eliminate options that break basic logic.
-                - Use simple numbers to test formula-based options.
-                - For placement MCQs, avoid spending too long on one hard question.
-
-                ## Common Mistakes
-                - Mixing up base value and final value in percentages.
-                - Ignoring units like minutes, hours, rupees, or items.
-                - Choosing a memorized formula without matching it to the question.
-
-                ## Solving Strategy
-                1. Mark what is given.
-                2. Identify what is asked.
-                3. Pick the concept.
-                4. Solve step by step.
-                5. Verify with estimation.
-
-                ## 5 Worked Examples
-                1. A value rises from 80 to 100. Increase = 20, percentage = 20/80 x 100 = 25%%.
-                2. Five scores are 20, 24, 26, 30, 35. Average = 135/5 = 27.
-                3. A train covers 120 km in 3 hours. Speed = 40 km/h.
-                4. A worker completes a task in 8 days. Daily work = 1/8.
-                5. A loop runs once for each item in a list of n records. Time complexity = O(n).
-
-                ## Interview Tips
-                - Explain your approach before the final answer.
-                - Mention assumptions clearly.
-                - If stuck, simplify the problem with smaller values.
-
-                ## Frequently Asked Questions
-                **How much should I practice daily?** Start with 30 to 45 minutes and review mistakes.
-
-                **Should I memorize shortcuts?** Learn the concept first, then use shortcuts for speed.
-
-                ## Summary
-                Focus on concept recognition, clean calculation, and mistake review.
-
-                ## Quick Revision Sheet
-                - Read carefully.
-                - Track units.
-                - Estimate.
-                - Eliminate weak options.
-                - Review every wrong answer.
+                
+                ## ⚡ Shortcuts & Tricks
+                - Estimate the answer first, then calculate. This catches silly math errors.
+                - Eliminate options that break basic logic (e.g. if speed increases, time MUST decrease).
+                - Plug in simple numbers (like 100) to test complex algebraic formulas.
+                
+                ## ❌ Common Mistakes
+                - Mixing up the "base value" and the "final value" in percentage changes.
+                - Ignoring units (mixing up minutes vs hours, meters vs kilometers).
+                
+                ## 💡 Interview Tips
+                - Always explain your approach before arriving at the final answer.
+                - Mention any assumptions you make clearly.
+                
+                ## 📌 Quick Revision Summary
+                - Track units carefully.
+                - Estimate before choosing.
+                - Review every wrong answer in your mock tests.
                 """.formatted(topic);
     }
 
@@ -504,18 +542,38 @@ At the end, add:
     private String numberedQuestions(SkilloraAiRequest request, int count, String difficulty, boolean compact) {
         StringBuilder builder = new StringBuilder();
         int seed = Math.abs((request.getTopic() + request.getSubtopic() + System.nanoTime()).hashCode() % 37) + 6;
+        String topicLower = request.getTopic().toLowerCase();
+        
+        boolean isCoding = topicLower.contains("tree") || topicLower.contains("graph") || topicLower.contains("array") || topicLower.contains("sql") || topicLower.contains("dbms") || topicLower.contains("string");
+        
         for (int i = 1; i <= count; i++) {
             int base = seed + (i * 3);
             builder.append("### Question ").append(i).append(" (").append(difficulty).append(")\n");
-            builder.append("A placement team reviews ").append(base).append(" candidates and shortlists ")
-                    .append(Math.max(2, base / 3)).append(". What concept is most useful to compare shortlist rate?\n\n");
-            builder.append("A. Percentage\n");
-            builder.append("B. Binary search\n");
-            builder.append("C. Recursion\n");
-            builder.append("D. File handling\n\n");
-            builder.append("**Correct Answer:** A\n\n");
+            
+            if (isCoding) {
+                builder.append("Which of the following data structures or queries best optimizes the process for a dataset of size ").append(base * 100).append(" in a standard **").append(request.getTopic()).append("** scenario?\n\n");
+                builder.append("A. O(N) linear traversal\n");
+                builder.append("B. O(log N) optimized tree navigation or indexing\n");
+                builder.append("C. O(N^2) nested iterations\n");
+                builder.append("D. O(1) direct hash mapping\n\n");
+                builder.append("**Correct Answer:** B\n\n");
+                if (!compact) {
+                    builder.append("**Explanation:** Optimizing to logarithmic or constant time is highly preferred for large datasets. In the context of ").append(request.getTopic()).append(", applying binary search techniques or proper indexing reduces operations significantly compared to linear scans.\n\n");
+                }
+            } else {
+                builder.append("A placement team reviews ").append(base).append(" candidates and shortlists ")
+                        .append(Math.max(2, base / 3)).append(" based on their **").append(request.getTopic()).append("** aptitude scores. What is the approximate shortlist percentage?\n\n");
+                builder.append("A. 33.33%\n");
+                builder.append("B. 25.00%\n");
+                builder.append("C. 15.50%\n");
+                builder.append("D. 40.00%\n\n");
+                builder.append("**Correct Answer:** A\n\n");
+                if (!compact) {
+                    builder.append("**Explanation:** Calculating (shortlisted / total) * 100 gives approximately 33.33%, which tests basic proportional reasoning applied to ").append(request.getTopic()).append(" scenarios.\n\n");
+                }
+            }
+            
             if (!compact) {
-                builder.append("**Explanation:** Shortlist rate compares selected candidates with total candidates, so percentage is the correct concept.\n\n");
                 builder.append("**Estimated Solving Time:** ").append("Hard".equalsIgnoreCase(difficulty) ? "3 minutes" : "90 seconds").append("\n\n");
                 builder.append("**Placement Company Level:** ").append("Hard".equalsIgnoreCase(difficulty) ? "Amazon/Microsoft" : "TCS/Infosys/Accenture").append("\n\n");
             }

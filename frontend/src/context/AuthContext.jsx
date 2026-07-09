@@ -87,8 +87,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem("pi_token");
-    localStorage.removeItem("pi_session");
+    clearStoredSession();
     setSession(null);
   };
 

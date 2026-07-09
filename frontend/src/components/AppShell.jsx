@@ -75,7 +75,7 @@ export const AppShell = ({ role, children }) => {
   const fetchNotifications = async () => {
     try {
       const [nr, cr] = await Promise.all([
-        api.get("/api/notifications/"),
+        api.get("/api/notifications"),
         api.get("/api/notifications/unread-count"),
       ]);
       setNotifications(nr.data || []);

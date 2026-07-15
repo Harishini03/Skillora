@@ -1,48 +1,33 @@
-param(
-    [switch]$MySql
-)
+# Skillora startup script — sets Groq API key and launches backend
+Write-Host "Starting Skillora Backend with Groq AI..." -ForegroundColor Cyan
 
-$projectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
-$frontendPath = Join-Path $projectRoot "frontend"
-$backendPort = 8080
-$frontendPort = 5173
-
-function Get-ListeningProcess {
-    param(
-        [int]$Port
-    )
-
-    $conn = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1
-    if (-not $conn) {
-        return $null
+# Load from .env if present
+if (Test-Path ".env") {
+    Get-Content .env | Foreach-Object {
+        $line = $_.Trim()
+        if ($line -and -not $line.StartsWith("#")) {
+            $parts = $line.Split('=', 2)
+            if ($parts.Length -eq 2) {
+                $name = $parts[0].Trim()
+                $value = $parts[1].Trim()
+                [Environment]::SetEnvironmentVariable($name, $value, "Process")
+            }
+        }
     }
-
-    return Get-Process -Id $conn.OwningProcess -ErrorAction SilentlyContinue
 }
 
-if ($MySql) {
-    $backendCommand = "Set-Location -LiteralPath '$projectRoot'; & .\gradlew.bat bootRun --args='--spring.profiles.active=mysql'"
+if (-not $env:GROQ_API_KEY) {
+    Write-Host "Warning: GROQ_API_KEY is not set. Falling back to offline mode." -ForegroundColor Yellow
 } else {
-    $backendCommand = "Set-Location -LiteralPath '$projectRoot'; & .\gradlew.bat bootRun"
+    Write-Host "GROQ_API_KEY is loaded from .env successfully!" -ForegroundColor Green
 }
 
-$frontendCommand = "Set-Location -LiteralPath '$frontendPath'; npm.cmd run dev"
-
-if (Get-ListeningProcess -Port $backendPort) {
-    $backendProcess = Get-ListeningProcess -Port $backendPort
-    Write-Host "Backend not started: port $backendPort is already in use by $($backendProcess.ProcessName) (PID $($backendProcess.Id))."
-} else {
-    Start-Process -FilePath "powershell.exe" -ArgumentList "-NoExit", "-ExecutionPolicy", "Bypass", "-Command", $backendCommand
-    Write-Host "Backend launch command started on port $backendPort."
+# Kill any existing process on port 8080
+$proc = Get-NetTCPConnection -LocalPort 8080 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess
+if ($proc) {
+    Stop-Process -Id $proc -Force -ErrorAction SilentlyContinue
+    Write-Host "Stopped previous backend on port 8080." -ForegroundColor Yellow
+    Start-Sleep -Seconds 2
 }
 
-Start-Sleep -Seconds 2
-if (Get-ListeningProcess -Port $frontendPort) {
-    $frontendProcess = Get-ListeningProcess -Port $frontendPort
-    Write-Host "Frontend not started: port $frontendPort is already in use by $($frontendProcess.ProcessName) (PID $($frontendProcess.Id))."
-} else {
-    Start-Process -FilePath "powershell.exe" -ArgumentList "-NoExit", "-ExecutionPolicy", "Bypass", "-Command", $frontendCommand
-    Write-Host "Frontend launch command started on port $frontendPort."
-}
-
-Write-Host "Open http://localhost:5173 after servers are ready."
+./gradlew bootRun

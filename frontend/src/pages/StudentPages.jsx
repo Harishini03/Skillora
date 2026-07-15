@@ -223,8 +223,41 @@ export const StudentDashboardPage = () => {
   );
 };
 
+const SECTION_TOPICS = {
+  aptitude: ["Percentages", "Profit & Loss", "Time & Work", "Speed, Distance & Time", "HCF & LCM", "Probability"],
+  coding: ["Arrays", "Binary Trees", "Dynamic Programming", "Graphs", "Stacks & Queues", "Sorting"],
+};
+
+const FORMULAS = {
+  "Percentages": [
+    { title: "Net % Change", formula: "A + B + (AB / 100)" },
+    { title: "Increase %", formula: "(Change / Original) * 100" }
+  ],
+  "Profit & Loss": [
+    { title: "Profit %", formula: "(Profit / CP) * 100" },
+    { title: "SP with Discount", formula: "MP * (100 - Discount%) / 100" }
+  ],
+  "Time & Work": [
+    { title: "Combined (2 people)", formula: "(A * B) / (A + B) days" },
+    { title: "Work done", formula: "Efficiency * Time" }
+  ],
+  "Speed, Distance & Time": [
+    { title: "Relative speed (Opposite)", formula: "S1 + S2" },
+    { title: "Conversion km/h to m/s", formula: "Speed * 5/18" }
+  ],
+  "HCF & LCM": [
+    { title: "Product rule", formula: "Num1 * Num2 = HCF * LCM" },
+    { title: "HCF of Fractions", formula: "HCF(Numerators) / LCM(Denominators)" }
+  ],
+  "Probability": [
+    { title: "Basic P(E)", formula: "Favorable / Total" },
+    { title: "Complement rule", formula: "P(E') = 1 - P(E)" }
+  ]
+};
+
 export const StudentSectionPage = ({ section }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const selectedTopic = useMemo(() => {
     try {
       return (new URLSearchParams(location.search).get("topic") || "").trim();
@@ -232,6 +265,14 @@ export const StudentSectionPage = ({ section }) => {
       return "";
     }
   }, [location.search]);
+
+  const selectTopic = (t) => {
+    navigate(`?topic=${encodeURIComponent(t)}`);
+  };
+
+  const clearTopic = () => {
+    navigate("?");
+  };
 
   // Phase: "start" | "active" | "results"
   const [phase, setPhase] = useState("start");
@@ -533,47 +574,107 @@ int main() {
         <>
           {/* START SCREEN */}
           {phase === "start" && (
-            <div className="dashboard-card p-8 text-center">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-teal-100">
-                <svg className="h-8 w-8 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-              </div>
-              <h3 className="text-2xl font-bold text-slate-900">{sectionLabel} Assessment</h3>
-              {selectedTopic && <p className="mt-1 text-sm text-slate-500">Topic: {selectedTopic}</p>}
-              <div className="mt-6 flex justify-center gap-8 text-center">
+            <div className="grid gap-6 md:grid-cols-[1fr_300px]">
+              {/* Left Column: Test Setup & Info */}
+              <div className="dashboard-card p-6 flex flex-col justify-between">
                 <div>
-                  <p className="text-3xl font-bold text-teal-700">{test.totalQuestions}</p>
-                  <p className="text-xs text-slate-500">Questions</p>
+                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-teal-100">
+                    <svg className="h-7 w-7 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900 text-center">{sectionLabel} Assessment</h3>
+                  
+                  {/* Topic selection if available */}
+                  {SECTION_TOPICS[section?.toLowerCase()] && (
+                    <div className="mt-4 border-t border-b border-slate-100 py-3 text-left">
+                      <p className="text-xs font-semibold uppercase text-slate-400 mb-2">Practice by Topic:</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => clearTopic()}
+                          className={`rounded-full px-3 py-1 text-xs font-medium transition ${!selectedTopic ? "bg-teal-700 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
+                        >
+                          All Topics
+                        </button>
+                        {SECTION_TOPICS[section.toLowerCase()].map(t => (
+                          <button
+                            key={t}
+                            type="button"
+                            onClick={() => selectTopic(t)}
+                            className={`rounded-full px-3 py-1 text-xs font-medium transition ${selectedTopic === t ? "bg-teal-700 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
+                          >
+                            {t}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedTopic && <p className="mt-3 text-sm font-semibold text-teal-800 text-center">Active Topic: {selectedTopic}</p>}
+                  
+                  <div className="mt-6 grid grid-cols-3 gap-4 text-center">
+                    <div className="rounded-xl bg-slate-50 p-3">
+                      <p className="text-2xl font-bold text-teal-700">{test.totalQuestions}</p>
+                      <p className="text-[10px] uppercase font-semibold text-slate-500">Questions</p>
+                    </div>
+                    <div className="rounded-xl bg-slate-50 p-3">
+                      <p className="text-2xl font-bold text-teal-700">{test.durationMinutes}</p>
+                      <p className="text-[10px] uppercase font-semibold text-slate-500">Minutes</p>
+                    </div>
+                    <div className="rounded-xl bg-slate-50 p-3">
+                      <p className="text-2xl font-bold text-teal-700">MCQ</p>
+                      <p className="text-[10px] uppercase font-semibold text-slate-500">Format</p>
+                    </div>
+                  </div>
+
+                  <ul className="mt-6 space-y-1.5 text-left text-xs text-slate-600 pl-4 list-disc">
+                    <li>Each question is timed and counts towards your profile readiness score.</li>
+                    <li>The assessment auto-submits when the timer reaches 0.</li>
+                    <li>Ensure a stable network connection before starting.</li>
+                  </ul>
                 </div>
-                <div>
-                  <p className="text-3xl font-bold text-teal-700">{test.durationMinutes}</p>
-                  <p className="text-xs text-slate-500">Minutes</p>
+
+                <div className="mt-6 flex justify-center gap-3 border-t border-slate-50 pt-4">
+                  <button type="button" onClick={loadTest} className="rounded-xl border border-slate-300 px-4 py-2 text-sm hover:bg-slate-50 font-medium">
+                    Regenerate Test
+                  </button>
+                  <button
+                    type="button"
+                    onClick={startTest}
+                    disabled={questionList.length === 0}
+                    className="rounded-xl bg-teal-700 px-6 py-2 font-semibold text-white hover:bg-teal-600 disabled:cursor-not-allowed disabled:opacity-60 shadow-md"
+                  >
+                    {questionList.length === 0 ? "No Questions Available" : "Start Test"}
+                  </button>
                 </div>
-                <div>
-                  <p className="text-3xl font-bold text-teal-700">MCQ</p>
-                  <p className="text-xs text-slate-500">Format</p>
-                </div>
+                {error && <p className="mt-3 text-sm text-rose-600 text-center">{error}</p>}
               </div>
-              <ul className="mt-6 space-y-1 text-sm text-slate-600">
-                <li>• Answer all questions within the time limit</li>
-                <li>• Timer starts when you click Start Test</li>
-                <li>• Test auto-submits when time runs out</li>
-              </ul>
-              <div className="mt-6 flex justify-center gap-3">
-                <button type="button" onClick={loadTest} className="rounded-xl border border-slate-300 px-4 py-2 text-sm hover:bg-slate-50">
-                  New Test
-                </button>
-                <button
-                  type="button"
-                  onClick={startTest}
-                  disabled={questionList.length === 0}
-                  className="rounded-xl bg-teal-700 px-6 py-2 font-semibold text-white hover:bg-teal-600 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {questionList.length === 0 ? "No Questions Available" : "Start Test"}
-                </button>
+
+              {/* Right Column: Revision sheet & Formulas */}
+              <div className="dashboard-card p-5 bg-slate-50 border border-slate-100 flex flex-col">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-lg">⚡</span>
+                  <h4 className="font-bold text-slate-900 text-sm">Quick Formulas & Revise</h4>
+                </div>
+                {section === "aptitude" && selectedTopic && FORMULAS[selectedTopic] ? (
+                  <div className="space-y-3 flex-1 overflow-y-auto max-h-[300px] pr-1">
+                    <p className="text-xs text-slate-500">Essential rules for <strong>{selectedTopic}</strong>:</p>
+                    {FORMULAS[selectedTopic].map((f, idx) => (
+                      <div key={idx} className="rounded-lg bg-white border border-slate-100 p-2.5 shadow-sm">
+                        <p className="text-xs font-bold text-slate-700">{f.title}</p>
+                        <p className="mt-1 font-mono text-[11px] text-teal-800 bg-teal-50/50 p-1.5 rounded">{f.formula}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex-1 flex flex-col items-center justify-center text-center py-8 text-slate-500">
+                    <span className="text-2xl mb-1">📖</span>
+                    <p className="text-xs font-semibold">Select an aptitude topic to view formula flashcards.</p>
+                    <p className="text-[10px] text-slate-400 mt-1">Revise key shortcuts right before your placement test starts.</p>
+                  </div>
+                )}
               </div>
-              {error && <p className="mt-3 text-sm text-rose-600">{error}</p>}
             </div>
           )}
 
@@ -1800,10 +1901,156 @@ export const StudentAnalyticsPage = () => {
   );
 };
 
+// ─── Job Board Helpers ────────────────────────────────────────────────────────
+
+const JOB_TYPE_COLORS = {
+  FULL_TIME:  { bg: "bg-blue-50",   text: "text-blue-700",   border: "border-blue-200",  label: "Full Time" },
+  INTERNSHIP: { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200", label: "Internship" },
+  CONTRACT:   { bg: "bg-orange-50", text: "text-orange-700", border: "border-orange-200", label: "Contract" },
+  PART_TIME:  { bg: "bg-teal-50",   text: "text-teal-700",   border: "border-teal-200",   label: "Part Time" },
+};
+
+const STATUS_COLORS = {
+  Open:       { bg: "bg-emerald-50",  text: "text-emerald-700",  dot: "bg-emerald-500"  },
+  Applied:    { bg: "bg-sky-50",      text: "text-sky-700",      dot: "bg-sky-500"      },
+  Interview:  { bg: "bg-amber-50",    text: "text-amber-700",    dot: "bg-amber-500"    },
+  Offered:    { bg: "bg-green-50",    text: "text-green-700",    dot: "bg-green-500"    },
+  Rejected:   { bg: "bg-red-50",      text: "text-red-600",      dot: "bg-red-400"      },
+  Withdrawn:  { bg: "bg-slate-100",   text: "text-slate-500",    dot: "bg-slate-400"    },
+};
+
+const COMPANY_COLORS = [
+  "#0061FF","#6B4FBB","#E44D26","#27AE60","#F07B00","#C0392B","#2980B9","#8E44AD",
+];
+
+function CompanyAvatar({ name, size = 40 }) {
+  const idx = name ? name.charCodeAt(0) % COMPANY_COLORS.length : 0;
+  return (
+    <div style={{ width: size, height: size, background: COMPANY_COLORS[idx], borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+      <span style={{ color: "#fff", fontWeight: 700, fontSize: size * 0.38 }}>
+        {(name || "?").charAt(0).toUpperCase()}
+      </span>
+    </div>
+  );
+}
+
+function SkillTag({ skill }) {
+  return (
+    <span className="inline-block rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-[11px] font-medium text-slate-600">
+      {skill.trim()}
+    </span>
+  );
+}
+
+function JobCard({ job, onApply, onSave, submitting }) {
+  const typeStyle = JOB_TYPE_COLORS[job.type] || JOB_TYPE_COLORS.FULL_TIME;
+  const statusStyle = STATUS_COLORS[job.status] || STATUS_COLORS.Open;
+  const skills = (job.requiredSkills || "").split(/[,;]/).filter(Boolean).slice(0, 4);
+  const postedDays = job.postedAt ? Math.floor((Date.now() - new Date(job.postedAt)) / 86400000) : null;
+
+  return (
+    <div className="group rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition-all duration-200 hover:border-blue-200 hover:shadow-md">
+      {/* Header Row */}
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start gap-3">
+          <CompanyAvatar name={job.company} size={46} />
+          <div>
+            <h3 className="text-base font-bold text-slate-900 group-hover:text-blue-700 transition-colors">{job.role}</h3>
+            <p className="text-sm font-medium text-slate-600">{job.company}</p>
+            <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+              {job.location && (
+                <span className="flex items-center gap-1">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                  {job.location}
+                </span>
+              )}
+              {job.ctc && job.ctc !== "As per company standards" && (
+                <span className="flex items-center gap-1">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  {job.ctc}
+                </span>
+              )}
+              {postedDays !== null && (
+                <span>{postedDays === 0 ? "Today" : `${postedDays}d ago`}</span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Status + Save */}
+        <div className="flex flex-col items-end gap-2 shrink-0">
+          <div className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${statusStyle.bg} ${statusStyle.text}`}>
+            <span className={`h-1.5 w-1.5 rounded-full ${statusStyle.dot}`} />
+            {job.status}
+          </div>
+          <button
+            onClick={() => onSave(job.id)}
+            className="text-slate-400 hover:text-amber-500 transition-colors"
+            title={job.saved ? "Unsave job" : "Save job"}
+          >
+            {job.saved
+              ? <svg className="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 24 24"><path d="M5 3a2 2 0 00-2 2v16l7-3 7 3V5a2 2 0 00-2-2H5z"/></svg>
+              : <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3-7 3V5z"/></svg>
+            }
+          </button>
+        </div>
+      </div>
+
+      {/* Tags Row */}
+      <div className="mt-3 flex flex-wrap gap-2">
+        <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${typeStyle.bg} ${typeStyle.text} ${typeStyle.border}`}>
+          {typeStyle.label}
+        </span>
+        {job.requiredCgpa && (
+          <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-[11px] font-medium text-slate-600">
+            CGPA ≥ {job.requiredCgpa}
+          </span>
+        )}
+        {skills.map((s) => <SkillTag key={s} skill={s} />)}
+      </div>
+
+      {/* Description snippet */}
+      {job.description && (
+        <p className="mt-3 text-xs leading-relaxed text-slate-500 line-clamp-2">{job.description}</p>
+      )}
+
+      {/* Footer row */}
+      <div className="mt-4 flex items-center justify-between border-t border-slate-50 pt-3">
+        <div className="text-xs text-slate-400">
+          {job.recruiterName && `Posted by ${job.recruiterName}`}
+          {job.appliedAt && ` • Applied ${new Date(job.appliedAt).toLocaleDateString()}`}
+          {job.interviewAt && (
+            <span className="ml-2 font-semibold text-amber-600">
+              🗓 Interview: {new Date(job.interviewAt).toLocaleString()}
+            </span>
+          )}
+        </div>
+        <div className="flex gap-2">
+          {job.status === "Open" && !job.applied && (
+            <button
+              onClick={() => onApply(job.id)}
+              disabled={submitting === job.id}
+              className="rounded-xl bg-blue-600 px-4 py-1.5 text-[13px] font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
+            >
+              {submitting === job.id ? "Applying…" : "Quick Apply"}
+            </button>
+          )}
+          {job.applied && (
+            <span className="rounded-xl bg-slate-100 px-4 py-1.5 text-[13px] font-semibold text-slate-500">
+              ✓ Applied
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export const StudentJobsDashboardPage = () => {
   const [jobs, setJobs] = useState([]);
   const [applications, setApplications] = useState([]);
   const [savedJobs, setSavedJobs] = usePersistentState("student_jobs_saved_v2", []);
+  const [activeTab, setActiveTab] = useState("all"); // all | applied | saved
   const [filters, setFilters] = useState({ type: "All", status: "All", query: "" });
   const [loading, setLoading] = useState(true);
   const [submittingId, setSubmittingId] = useState(null);
@@ -1837,15 +2084,11 @@ export const StudentJobsDashboardPage = () => {
     }
   };
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  useEffect(() => { loadData(); }, []);
 
   const applicationByJobId = useMemo(() => {
     const map = {};
-    applications.forEach((application) => {
-      map[application.jobId] = application;
-    });
+    applications.forEach((app) => { map[app.jobId] = app; });
     return map;
   }, [applications]);
 
@@ -1866,18 +2109,24 @@ export const StudentJobsDashboardPage = () => {
     };
   }), [jobs, applicationByJobId, savedJobs]);
 
-  const filteredJobs = useMemo(() => jobsView.filter((job) => {
-    const typeOk = filters.type === "All" || job.type === filters.type;
-    const statusOk = filters.status === "All" || job.status === filters.status;
-    const queryOk = !filters.query
-      || `${job.company} ${job.role} ${job.location} ${job.requiredSkills || ""}`.toLowerCase().includes(filters.query.toLowerCase());
-    return typeOk && statusOk && queryOk;
-  }), [filters, jobsView]);
+  const filteredJobs = useMemo(() => {
+    let base = jobsView;
+    if (activeTab === "applied") base = base.filter((j) => j.applied);
+    else if (activeTab === "saved") base = base.filter((j) => j.saved);
+    return base.filter((job) => {
+      const typeOk = filters.type === "All" || job.type === filters.type;
+      const statusOk = filters.status === "All" || job.status === filters.status;
+      const queryOk = !filters.query
+        || `${job.company} ${job.role} ${job.location || ""} ${job.requiredSkills || ""}`.toLowerCase().includes(filters.query.toLowerCase());
+      return typeOk && statusOk && queryOk;
+    });
+  }, [filters, jobsView, activeTab]);
 
   const pipeline = useMemo(() => ({
-    open: jobsView.filter((job) => job.status === "Open").length,
-    applied: jobsView.filter((job) => job.status === "Applied").length,
-    interview: jobsView.filter((job) => job.status === "Interview").length,
+    total: jobsView.length,
+    applied: jobsView.filter((j) => j.applied).length,
+    interview: jobsView.filter((j) => j.status === "Interview").length,
+    offered: jobsView.filter((j) => j.status === "Offered").length,
   }), [jobsView]);
 
   const toggleSave = (id) => {
@@ -1890,63 +2139,160 @@ export const StudentJobsDashboardPage = () => {
     setMessage("");
     try {
       await api.post(`/api/portal/student/jobs/${id}/apply`);
-      setMessage("Application submitted successfully.");
+      setMessage("🎉 Application submitted successfully!");
       await loadData();
     } catch (e) {
-      setError(e.response?.data?.message || "Failed to apply for this job.");
+      setError(e.response?.data?.message || "Failed to apply. Please try again.");
     } finally {
       setSubmittingId(null);
     }
   };
 
-  if (loading) return <p>Loading jobs dashboard...</p>;
-
   return (
-    <div className="space-y-5">
-      <section className="portal-banner">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-100">Jobs Dashboard</p>
-        <h2 className="mt-2 text-3xl font-bold text-white">Placement Opportunities</h2>
-        <p className="mt-2 text-sm text-cyan-50/90">Track openings, save roles, and move applications through your pipeline.</p>
-      </section>
-      <div className="grid gap-4 md:grid-cols-3">
-        <StatCard label="Open Roles" value={pipeline.open} />
-        <StatCard label="Applications" value={pipeline.applied} />
-        <StatCard label="Interviews" value={pipeline.interview} />
+    <div className="space-y-6">
+      {/* Hero Banner */}
+      <div style={{background: "linear-gradient(135deg, #1a1f6e 0%, #3b4fc4 60%, #6c63ff 100%)"}} className="rounded-2xl p-6 text-white">
+        <p className="text-xs font-semibold uppercase tracking-widest text-blue-200">Placement Opportunities</p>
+        <h2 className="mt-1 text-2xl font-bold">Find Your Dream Job 🚀</h2>
+        <p className="mt-1 text-sm text-blue-100">Explore campus placements, internships, and job offers tailored for you.</p>
+
+        {/* Search bar */}
+        <div className="mt-4 flex gap-2">
+          <div className="flex flex-1 items-center gap-2 rounded-xl bg-white/10 border border-white/20 px-4 py-2 backdrop-blur-sm">
+            <svg className="h-4 w-4 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              className="flex-1 bg-transparent text-sm text-white placeholder-white/60 outline-none"
+              placeholder="Search roles, companies, skills…"
+              value={filters.query}
+              onChange={(e) => setFilters((f) => ({ ...f, query: e.target.value }))}
+            />
+          </div>
+          <button onClick={loadData} className="rounded-xl bg-white/20 border border-white/30 px-4 py-2 text-sm font-semibold text-white hover:bg-white/30 transition">
+            Refresh
+          </button>
+        </div>
       </div>
-      <div className="dashboard-card grid gap-3 p-4 md:grid-cols-4">
-        <input className="rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="Search by company/role" value={filters.query} onChange={(e) => setFilters((f) => ({ ...f, query: e.target.value }))} />
-        <select className="rounded-xl border border-slate-200 px-3 py-2 text-sm" value={filters.type} onChange={(e) => setFilters((f) => ({ ...f, type: e.target.value }))}>
-          <option>All</option><option value="FULL_TIME">Full Time</option><option value="INTERNSHIP">Internship</option><option value="CONTRACT">Contract</option>
-        </select>
-        <select className="rounded-xl border border-slate-200 px-3 py-2 text-sm" value={filters.status} onChange={(e) => setFilters((f) => ({ ...f, status: e.target.value }))}>
-          <option>All</option><option>Open</option><option>Applied</option><option>Interview</option><option>Offered</option><option>Rejected</option><option>Withdrawn</option>
-        </select>
-        <button type="button" className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-800" onClick={loadData}>Refresh</button>
-      </div>
-      {message ? <p className="text-sm text-emerald-700">{message}</p> : null}
-      {error ? <p className="text-sm text-rose-600">{error}</p> : null}
-      <div className="grid gap-3">
-        {filteredJobs.length === 0 ? <div className="dashboard-card p-4 text-sm text-slate-600">No jobs found for your filters.</div> : null}
-        {filteredJobs.map((job) => (
-          <div key={job.id} className="dashboard-card flex flex-wrap items-center justify-between gap-3 p-4">
-            <div>
-              <p className="text-lg font-semibold text-slate-900">{job.role}</p>
-              <p className="text-sm text-slate-600">{job.company} | {job.location} | {job.type} | {job.ctc}</p>
-              <p className="text-xs text-slate-500">Status: {job.status} {job.appliedAt ? `| Applied: ${new Date(job.appliedAt).toLocaleDateString()}` : ""} {job.interviewAt ? `| Interview: ${new Date(job.interviewAt).toLocaleString()}` : ""}</p>
-              <p className="mt-1 text-xs text-slate-500">Skills: {job.requiredSkills || "Not specified"} | Recruiter: {job.recruiterName || "Recruiter"}</p>
-            </div>
-            <div className="flex gap-2">
-              <button type="button" onClick={() => toggleSave(job.id)} className="rounded-xl border border-slate-300 px-3 py-2 text-sm">{job.saved ? "Saved" : "Save"}</button>
-              <button type="button" disabled={job.applied || submittingId === job.id} onClick={() => applyNow(job.id)} className="rounded-xl bg-slate-900 px-3 py-2 text-sm text-white disabled:cursor-not-allowed disabled:opacity-60">
-                {job.applied ? "Applied" : submittingId === job.id ? "Applying..." : "Apply Now"}
-              </button>
-            </div>
+
+      {/* Pipeline Stats */}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        {[
+          { label: "Total Openings", value: pipeline.total, color: "bg-blue-50 border-blue-100", textColor: "text-blue-700", icon: "💼" },
+          { label: "Applied",        value: pipeline.applied, color: "bg-sky-50 border-sky-100",  textColor: "text-sky-700",  icon: "📋" },
+          { label: "Interviews",     value: pipeline.interview, color: "bg-amber-50 border-amber-100", textColor: "text-amber-700", icon: "🗓" },
+          { label: "Offers",         value: pipeline.offered, color: "bg-green-50 border-green-100", textColor: "text-green-700", icon: "🎉" },
+        ].map((stat) => (
+          <div key={stat.label} className={`rounded-2xl border p-4 ${stat.color}`}>
+            <p className="text-xl">{stat.icon}</p>
+            <p className={`mt-1 text-2xl font-bold ${stat.textColor}`}>{stat.value}</p>
+            <p className="text-xs font-medium text-slate-500">{stat.label}</p>
           </div>
         ))}
       </div>
+
+      {/* Tabs + Filters Row */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        {/* Tabs */}
+        <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
+          {[
+            { id: "all",     label: "All Jobs" },
+            { id: "applied", label: `Applied (${pipeline.applied})` },
+            { id: "saved",   label: `Saved (${savedJobs.length})` },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`rounded-lg px-4 py-1.5 text-sm font-semibold transition ${activeTab === tab.id ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-800"}`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Filters */}
+        <div className="flex flex-wrap gap-2">
+          <select
+            className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-700 shadow-sm outline-none"
+            value={filters.type}
+            onChange={(e) => setFilters((f) => ({ ...f, type: e.target.value }))}
+          >
+            <option value="All">All Types</option>
+            <option value="FULL_TIME">Full Time</option>
+            <option value="INTERNSHIP">Internship</option>
+            <option value="CONTRACT">Contract</option>
+            <option value="PART_TIME">Part Time</option>
+          </select>
+          <select
+            className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-700 shadow-sm outline-none"
+            value={filters.status}
+            onChange={(e) => setFilters((f) => ({ ...f, status: e.target.value }))}
+          >
+            <option value="All">All Status</option>
+            <option>Open</option>
+            <option>Applied</option>
+            <option>Interview</option>
+            <option>Offered</option>
+            <option>Rejected</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Messages */}
+      {message && (
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
+          {message}
+        </div>
+      )}
+      {error && (
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
+          {error}
+        </div>
+      )}
+
+      {/* Job Cards */}
+      {loading ? (
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="animate-pulse rounded-2xl border border-slate-100 bg-white p-5">
+              <div className="flex gap-3">
+                <div className="h-12 w-12 rounded-xl bg-slate-200" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-1/3 rounded bg-slate-200" />
+                  <div className="h-3 w-1/4 rounded bg-slate-200" />
+                  <div className="h-3 w-1/2 rounded bg-slate-200" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : filteredJobs.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50 py-16 text-center">
+          <span className="text-4xl">🔍</span>
+          <p className="mt-3 text-base font-semibold text-slate-700">No jobs found</p>
+          <p className="mt-1 text-sm text-slate-500">
+            {activeTab === "saved" ? "You haven't saved any jobs yet." : "Try adjusting your filters or check back later."}
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {filteredJobs.map((job) => (
+            <JobCard
+              key={job.id}
+              job={job}
+              onApply={applyNow}
+              onSave={toggleSave}
+              submitting={submittingId}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
+
+
+
 
 const STUDENT_DEFAULT_TRACKS = [
   {

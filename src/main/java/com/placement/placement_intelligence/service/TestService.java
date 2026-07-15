@@ -73,6 +73,13 @@ public class TestService {
 
     @Transactional
     public List<Question> getOrGenerateQuestions(TestType type, String requestedTopic, int count) {
+        if (type == TestType.MOCK) {
+            List<Question> combined = new ArrayList<>();
+            combined.addAll(getOrGenerateQuestions(TestType.APTITUDE, "Aptitude", 20));
+            combined.addAll(getOrGenerateQuestions(TestType.CODING, "DSA", 2));
+            return combined;
+        }
+
         String canonicalTopic = canonicalTopic(type);
         String topic = normalizeTopic(requestedTopic, canonicalTopic);
 

@@ -99,12 +99,16 @@ public class StudentController {
         int questionCount = switch (type) {
             case CODING -> 5;
             case SOFT_SKILLS -> 10;
-            case MOCK -> 20;
+            case MOCK -> 22; // 20 Aptitude + 2 Coding
             default -> 20;
         };
         List<Question> questions = testService.getOrGenerateQuestions(type, topic, questionCount);
-        int duration = type == TestType.CODING ? 60 : 20;
-        if (type == TestType.SOFT_SKILLS) {
+        int duration = 20;
+        if (type == TestType.CODING) {
+            duration = 60;
+        } else if (type == TestType.MOCK) {
+            duration = 90; // 90 minutes for Mock Test
+        } else if (type == TestType.SOFT_SKILLS) {
             duration = 15;
         }
         TestSession session = testService.startSession(studentId, type, questions.size(), duration);

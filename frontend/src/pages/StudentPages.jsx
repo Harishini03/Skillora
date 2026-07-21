@@ -90,8 +90,18 @@ export const StudentDashboardPage = () => {
   const recs      = Array.isArray(data?.recommendations) ? data.recommendations : [];
 
   const ringColor = readiness >= 70 ? "#10b981" : readiness >= 40 ? "#f59e0b" : "#ef4444";
+  const ringLabel = readiness >= 70 ? "🌟 Placement Ready" : readiness >= 40 ? "📈 On Track" : "⚡ Needs Work";
   const ringCircumference = 2 * Math.PI * 52;
   const ringDash = (readiness / 100) * ringCircumference;
+
+  const dailyTips = [
+    "Practice 2 DSA problems daily — consistency beats cramming.",
+    "Review formulas 10 min before sleeping for better retention.",
+    "Attempt a Mock Test every Sunday to simulate placement pressure.",
+    "For aptitude, focus on shortcuts — not derivations.",
+    "Read one company's interview experience today on GeeksforGeeks.",
+  ];
+  const todayTip = dailyTips[new Date().getDay() % dailyTips.length];
 
   const statCards = [
     { icon: "🎯", label: "Readiness", value: `${readiness}%`, bg: "bg-teal-50", text: "text-teal-700", border: "border-teal-200" },
@@ -101,24 +111,34 @@ export const StudentDashboardPage = () => {
   ];
 
   const progressBars = [
-    { label: "Aptitude", value: aptitude, color: "from-teal-500 to-emerald-400", href: "/student/aptitude" },
-    { label: "Coding (DSA)", value: coding, color: "from-sky-500 to-blue-400", href: "/student/dsa" },
-    { label: "Mock Tests", value: mock, color: "from-purple-500 to-violet-400", href: "/student/mock" },
+    { label: "Aptitude", value: aptitude, color: "from-teal-500 to-emerald-400", href: "/student/aptitude", icon: "📊" },
+    { label: "Coding (DSA)", value: coding, color: "from-sky-500 to-blue-400", href: "/student/dsa", icon: "💻" },
+    { label: "Mock Tests", value: mock, color: "from-purple-500 to-violet-400", href: "/student/mock", icon: "🏆" },
   ];
 
   const quickActions = [
-    { icon: "📝", title: "Aptitude Test", desc: "AI-generated placement MCQs by topic", href: "/student/aptitude", grad: "from-teal-600 to-emerald-500" },
-    { icon: "💻", title: "DSA Practice", desc: "LeetCode-style coding problems", href: "/student/dsa", grad: "from-sky-600 to-blue-500" },
-    { icon: "🤖", title: "AI Mentor", desc: "Learn, practice, revise with AI", href: "/student/ai-mentor", grad: "from-purple-600 to-violet-500" },
+    { icon: "📝", title: "Aptitude Test", desc: "20 AI-generated placement MCQs", href: "/student/aptitude", grad: "from-teal-600 to-emerald-500", badge: "20 Qs" },
+    { icon: "💻", title: "DSA Practice", desc: "LeetCode-style coding problems", href: "/student/dsa", grad: "from-sky-600 to-blue-500", badge: "5 Qs" },
+    { icon: "🤖", title: "AI Mentor", desc: "Learn, practice, revise with AI", href: "/student/ai-mentor", grad: "from-purple-600 to-violet-500", badge: "Groq AI" },
+    { icon: "🏆", title: "Mock Test", desc: "Full 20+2 campus simulation", href: "/student/mock", grad: "from-rose-600 to-pink-500", badge: "90 min" },
+    { icon: "📚", title: "Jobs Board", desc: "Explore campus opportunities", href: "/student/jobs", grad: "from-indigo-600 to-blue-600", badge: "New" },
+    { icon: "📊", title: "My Reports", desc: "View performance analytics", href: "/student/reports", grad: "from-amber-500 to-orange-500", badge: "Charts" },
   ];
 
   return (
     <div className="space-y-6">
-      {/* Banner */}
-      <section className="portal-banner">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-100">Student Dashboard</p>
-        <h2 className="mt-1 text-3xl font-bold text-white">Welcome back! 👋</h2>
-        <p className="mt-1 text-sm text-cyan-50/80">Track your placement readiness, sharpen your skills, and land your dream job.</p>
+      {/* Premium Banner */}
+      <section className="portal-banner relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10" style={{backgroundImage: "radial-gradient(circle at 20% 50%, #06b6d4 0%, transparent 50%), radial-gradient(circle at 80% 20%, #8b5cf6 0%, transparent 40%)"}} />
+        <div className="relative">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-100">Student Dashboard</p>
+          <h2 className="mt-1 text-3xl font-bold text-white">Welcome back! 👋</h2>
+          <p className="mt-1 text-sm text-cyan-50/80">Your placement journey continues — track readiness, sharpen skills, and land your dream job.</p>
+          <div className="mt-4 inline-flex items-center gap-2 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2">
+            <span className="text-lg">💡</span>
+            <p className="text-xs text-white/90 font-medium">{todayTip}</p>
+          </div>
+        </div>
       </section>
 
       {/* Readiness ring + stat cards */}
@@ -135,11 +155,12 @@ export const StudentDashboardPage = () => {
             <text x="65" y="76" textAnchor="middle" fontSize="10" fill="#64748b">READINESS %</text>
           </svg>
           <p className="mt-2 text-xs font-semibold text-slate-500 uppercase tracking-wide">Overall Score</p>
+          <span className="mt-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold" style={{background: ringColor + "20", color: ringColor}}>{ringLabel}</span>
         </div>
 
         {/* Stat cards */}
         {statCards.map(s => (
-          <div key={s.label} className={`dashboard-card flex flex-col justify-center border ${s.border} ${s.bg} p-5`}>
+          <div key={s.label} className={`dashboard-card flex flex-col justify-center border ${s.border} ${s.bg} p-5 hover:shadow-md transition`}>
             <p className="text-2xl">{s.icon}</p>
             <p className={`mt-2 ${s.small ? "text-lg" : "text-2xl"} font-bold ${s.text}`}>{s.value}</p>
             <p className="mt-0.5 text-xs font-medium text-slate-500 uppercase tracking-wide">{s.label}</p>
@@ -153,8 +174,10 @@ export const StudentDashboardPage = () => {
         <div className="space-y-4">
           {progressBars.map(pb => (
             <button key={pb.label} onClick={() => navigate(pb.href)} className="w-full text-left group">
-              <div className="mb-1.5 flex justify-between text-sm">
-                <span className="font-semibold text-slate-700 group-hover:text-teal-700 transition">{pb.label}</span>
+              <div className="mb-1.5 flex items-center justify-between text-sm">
+                <span className="flex items-center gap-2 font-semibold text-slate-700 group-hover:text-teal-700 transition">
+                  <span>{pb.icon}</span>{pb.label}
+                </span>
                 <span className="font-bold text-slate-900">{Math.round(pb.value)}%</span>
               </div>
               <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-100">
@@ -177,9 +200,11 @@ export const StudentDashboardPage = () => {
             ? <p className="text-sm text-slate-500">No weak areas identified yet. Take a test to find out!</p>
             : <ul className="space-y-2">
                 {weakAreas.map((area, i) => (
-                  <li key={i} className="flex items-center gap-2 text-sm text-slate-700">
-                    <span className="h-2 w-2 rounded-full bg-rose-400 flex-shrink-0" />
-                    {area}
+                  <li key={i} className="flex items-center justify-between rounded-xl bg-rose-50 border border-rose-100 px-3 py-2">
+                    <span className="flex items-center gap-2 text-sm text-rose-800 font-medium">
+                      <span className="h-2 w-2 rounded-full bg-rose-400 flex-shrink-0" />{area}
+                    </span>
+                    <button onClick={() => navigate(`/student/ai-mentor`)} className="text-[10px] text-rose-600 underline hover:text-rose-800">Revise →</button>
                   </li>
                 ))}
               </ul>
@@ -188,14 +213,14 @@ export const StudentDashboardPage = () => {
         <div className="dashboard-card p-5">
           <h3 className="mb-3 flex items-center gap-2 text-base font-bold text-slate-900">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-teal-100 text-teal-600 text-xs">→</span>
-            Recommendations
+            AI Recommendations
           </h3>
           {recs.length === 0
             ? <p className="text-sm text-slate-500">Complete a test to get personalized recommendations.</p>
             : <ul className="space-y-2">
                 {recs.map((rec, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-slate-700">
-                    <span className="mt-0.5 text-teal-500">→</span>
+                  <li key={i} className="flex items-start gap-2 rounded-xl bg-teal-50 border border-teal-100 px-3 py-2 text-sm text-teal-800">
+                    <span className="mt-0.5 text-teal-500 font-bold">→</span>
                     {rec}
                   </li>
                 ))}
@@ -211,7 +236,10 @@ export const StudentDashboardPage = () => {
           {quickActions.map(qa => (
             <button key={qa.title} onClick={() => navigate(qa.href)}
               className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br ${qa.grad} p-5 text-left shadow-lg transition hover:scale-[1.02] hover:shadow-xl`}>
-              <div className="text-3xl mb-3">{qa.icon}</div>
+              <div className="flex items-start justify-between">
+                <div className="text-3xl mb-3">{qa.icon}</div>
+                <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold text-white/90">{qa.badge}</span>
+              </div>
               <p className="font-bold text-white text-base">{qa.title}</p>
               <p className="mt-1 text-xs text-white/80">{qa.desc}</p>
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 text-2xl group-hover:text-white/80 transition">→</span>
@@ -2306,18 +2334,28 @@ const STUDENT_DEFAULT_TRACKS = [
     weakArea: "Probability",
     topic: "Permutations",
     expected: "20 adaptive aptitude questions with timer and instant scoring",
+    icon: "📊",
+    difficulty: "Mixed",
+    duration: "20 min",
+    color: "from-teal-600 to-emerald-500",
+    subtopics: ["Percentages", "Profit & Loss", "HCF & LCM", "Probability"],
   },
   {
     id: 2,
-    title: "Coding Interview Sprint (LeetCode Style)",
+    title: "Coding Interview Sprint",
     section: "coding",
     route: "/student/coding",
     cta: "Start Coding Test",
     progress: 62,
     streak: 3,
     weakArea: "Dynamic Programming",
-    topic: "1D DP basics",
-    expected: "DSA coding-focused set with code runner and evaluated submission",
+    topic: "Binary Trees",
+    expected: "DSA coding MCQs with code runner and submission evaluation",
+    icon: "💻",
+    difficulty: "Medium",
+    duration: "60 min",
+    color: "from-sky-600 to-blue-500",
+    subtopics: ["Arrays", "Binary Trees", "Graphs", "DP"],
   },
   {
     id: 3,
@@ -2329,22 +2367,24 @@ const STUDENT_DEFAULT_TRACKS = [
     streak: 2,
     weakArea: "Time management",
     topic: "Mixed aptitude + coding",
-    expected: "End-to-end mock similar to a campus drive screening round",
+    expected: "Full 20 Aptitude + 2 Coding questions — campus drive simulation",
+    icon: "🏆",
+    difficulty: "Hard",
+    duration: "90 min",
+    color: "from-rose-600 to-pink-500",
+    subtopics: ["Aptitude", "DSA", "Logical Reasoning", "Time management"],
   },
 ];
 
 export const StudentLearningAcademyPage = () => {
   const navigate = useNavigate();
-  const [tracks, setTracks] = usePersistentState("student_learning_tracks_v1", STUDENT_DEFAULT_TRACKS);
+  const [tracks, setTracks] = usePersistentState("student_learning_tracks_v2", STUDENT_DEFAULT_TRACKS);
+  const [activeTopic, setActiveTopic] = useState({});
 
   useEffect(() => {
-    const hasLegacyShape = tracks.some((track) => !track.route || !track.cta || !track.expected);
+    const hasLegacyShape = tracks.some((track) => !track.route || !track.cta || !track.expected || !track.icon);
     if (!hasLegacyShape) return;
-    const merged = STUDENT_DEFAULT_TRACKS.map((base) => {
-      const existing = tracks.find((track) => track.id === base.id);
-      return existing ? { ...base, ...existing, route: base.route, cta: base.cta, expected: base.expected } : base;
-    });
-    setTracks(merged);
+    setTracks(STUDENT_DEFAULT_TRACKS);
   }, [tracks, setTracks]);
 
   const launchAutoTest = (id, route, topic) => {
@@ -2356,39 +2396,86 @@ export const StudentLearningAcademyPage = () => {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <section className="portal-banner">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-100">Learning / Academy</p>
-        <h2 className="mt-2 text-3xl font-bold text-white">Adaptive Learning With Auto-Generated Tests</h2>
-        <p className="mt-2 text-sm text-cyan-50/90">Launch aptitude, LeetCode-style coding, and mock tests directly from here. Every test submission updates your analytics.</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-100">Learning Academy</p>
+        <h2 className="mt-2 text-3xl font-bold text-white">🎓 Adaptive Learning Tracks</h2>
+        <p className="mt-2 text-sm text-cyan-50/90">One-click AI-generated tests for each track. Every submission updates your readiness score and charts.</p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {["🎯 AI-Generated Questions", "⏱️ Real-time Timer", "📊 Instant Analytics", "🔁 Adaptive Difficulty"].map(tag => (
+            <span key={tag} className="rounded-full bg-white/10 border border-white/20 px-3 py-1 text-xs text-white/90 font-medium">{tag}</span>
+          ))}
+        </div>
       </section>
-      <div className="dashboard-card p-4">
-        <p className="text-sm font-semibold text-slate-900">What you should expect</p>
-        <ul className="mt-2 space-y-1 text-sm text-slate-700">
-          <li>- One-click test generation for each track.</li>
-          <li>- Timed sessions, real question sets, and evaluation on submit.</li>
-          <li>- Your reports page reflects attempts, accuracy, and recommendations.</li>
-        </ul>
-      </div>
-      <div className="grid gap-4">
+
+      <div className="grid gap-5">
         {tracks.map((track) => (
-          <div key={track.id} className="dashboard-card p-4">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div>
-                <p className="text-lg font-semibold text-slate-900">{track.title}</p>
-                <p className="text-sm text-slate-600">Weak Area: {track.weakArea} | Next Topic: {track.topic}</p>
-                <p className="mt-1 text-xs text-slate-500">Expected: {track.expected}</p>
+          <div key={track.id} className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition">
+            {/* Track Header */}
+            <div className={`bg-gradient-to-r ${track.color} p-5 flex items-center justify-between`}>
+              <div className="flex items-center gap-3">
+                <span className="text-3xl">{track.icon}</span>
+                <div>
+                  <p className="text-lg font-bold text-white">{track.title}</p>
+                  <div className="flex gap-2 mt-1">
+                    <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold text-white">{track.difficulty}</span>
+                    <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold text-white">⏱ {track.duration}</span>
+                    <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold text-white">🔥 {track.streak} day streak</span>
+                  </div>
+                </div>
               </div>
               <button
                 type="button"
-                onClick={() => launchAutoTest(track.id, track.route, track.topic)}
-                className="rounded-xl bg-teal-700 px-3 py-2 text-sm text-white"
+                onClick={() => launchAutoTest(track.id, track.route, activeTopic[track.id] || track.topic)}
+                className="rounded-xl bg-white px-4 py-2 text-sm font-bold shadow-sm transition hover:scale-105"
+                style={{color: "#0f172a"}}
               >
-                {track.cta}
+                {track.cta} →
               </button>
             </div>
-            <div className="mt-3">
-              <ProgressBar label={`Progress | Streak ${track.streak} days`} value={track.progress} />
+
+            {/* Track body */}
+            <div className="p-5 grid md:grid-cols-[1fr_200px] gap-4">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Weak Area:</span>
+                  <span className="rounded-full bg-rose-100 text-rose-700 px-2 py-0.5 text-xs font-semibold">{track.weakArea}</span>
+                </div>
+                <p className="text-xs text-slate-500 mb-3">{track.expected}</p>
+
+                {/* Subtopic quick-select */}
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase mb-1.5">Jump to Topic:</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {track.subtopics.map(sub => (
+                      <button
+                        key={sub}
+                        onClick={() => setActiveTopic(prev => ({...prev, [track.id]: sub}))}
+                        className={`rounded-full px-2.5 py-1 text-xs font-medium transition ${
+                          (activeTopic[track.id] || track.topic) === sub
+                            ? "bg-slate-900 text-white"
+                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                        }`}
+                      >
+                        {sub}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold text-slate-500 uppercase mb-1">Progress</p>
+                <div className="mb-1.5 flex justify-between text-sm">
+                  <span className="font-medium text-slate-700">Overall</span>
+                  <span className="font-bold text-slate-900">{track.progress}%</span>
+                </div>
+                <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-100">
+                  <div className={`h-2.5 rounded-full bg-gradient-to-r ${track.color} transition-all duration-700`}
+                    style={{ width: `${track.progress}%` }} />
+                </div>
+                <p className="mt-2 text-xs text-slate-500">Next: <strong className="text-slate-700">{activeTopic[track.id] || track.topic}</strong></p>
+              </div>
             </div>
           </div>
         ))}
@@ -2749,10 +2836,11 @@ export const StudentNotesPage = () => {
   );
 };
 
-const splitLines = (value) => value
-  .split("\n")
-  .map((item) => item.trim())
-  .filter(Boolean);
+const splitLines = (value) =>
+  value
+    .split("\n")
+    .map((item) => item.trim())
+    .filter(Boolean);
 
 const MentorMarkdown = ({ content }) => {
   if (!content) return null;
@@ -2771,8 +2859,40 @@ const MentorMarkdown = ({ content }) => {
   );
 };
 
+const APTITUDE_CURRICULUM = [
+  { topic: "Percentages", subtopics: ["Percentage increase/decrease", "Percentage of a number", "Successive %", "Error %"] },
+  { topic: "Profit & Loss", subtopics: ["Cost price, selling price", "Markup & discount", "Dishonest dealings"] },
+  { topic: "Time & Work", subtopics: ["Work rate", "Work efficiency", "Pipes & Cisterns"] },
+  { topic: "Speed, Distance & Time", subtopics: ["Relative speed", "Trains & boats", "Average speed"] },
+  { topic: "HCF & LCM", subtopics: ["GCD method", "LCM word problems", "Divisibility rules"] },
+  { topic: "Probability", subtopics: ["Sample space", "Conditional probability", "Binomial"] },
+  { topic: "Permutations & Combinations", subtopics: ["Arrangements", "Selections", "Circular permutation"] },
+  { topic: "Number System", subtopics: ["Remainders", "Divisibility", "Prime factorization"] },
+  { topic: "Averages", subtopics: ["Weighted average", "Replacing average", "Moving average"] },
+  { topic: "Ratio & Proportion", subtopics: ["Direct ratio", "Inverse ratio", "Mixture problems"] },
+];
+
+const DSA_CURRICULUM = [
+  { topic: "Arrays", subtopics: ["Two-pointer", "Sliding window", "Prefix sum", "Sorting"] },
+  { topic: "Binary Trees", subtopics: ["Traversals", "BST operations", "Height & diameter"] },
+  { topic: "Dynamic Programming", subtopics: ["1D DP", "2D DP", "LCS/LIS", "Coin change"] },
+  { topic: "Graphs", subtopics: ["BFS/DFS", "Shortest path", "Cycle detection", "Topological sort"] },
+  { topic: "Stacks & Queues", subtopics: ["Monotonic stack", "Deque", "Expression parsing"] },
+  { topic: "Linked Lists", subtopics: ["Reversal", "Fast-slow pointer", "Merge sorted lists"] },
+  { topic: "Searching", subtopics: ["Binary search", "Rotated arrays", "Search in 2D"] },
+  { topic: "Sorting", subtopics: ["Merge sort", "Quick sort", "Heap sort", "Counting sort"] },
+];
+
+const AI_MODES = [
+  { value: "LEARN", label: "Learn", icon: "📚", desc: "Structured notes + concept explanations", color: "from-sky-500 to-blue-500" },
+  { value: "PRACTICE", label: "Practice", icon: "✏️", desc: "Practice questions on selected topic", color: "from-teal-500 to-emerald-500" },
+  { value: "ADAPTIVE", label: "Adaptive", icon: "🧠", desc: "AI adapts to your weak areas", color: "from-purple-500 to-violet-500" },
+  { value: "REVISION", label: "Revision", icon: "🔁", desc: "Quick revision & formula sheets", color: "from-amber-500 to-orange-500" },
+  { value: "MOCK_TEST", label: "Mock Test", icon: "🏆", desc: "Full placement simulation test", color: "from-rose-500 to-pink-500" },
+];
+
 export const StudentAiMentorPage = () => {
-  const [form, setForm] = usePersistentState("skillora_ai_mentor_form_v1", {
+  const [form, setForm] = usePersistentState("skillora_ai_mentor_form_v2", {
     mode: "LEARN",
     topic: "Percentages",
     subtopic: "Percentage increase and decrease",
@@ -2785,12 +2905,16 @@ export const StudentAiMentorPage = () => {
     correct: 6,
     wrong: 4,
     accuracy: 60,
+    curriculumType: "APTITUDE",
   });
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const update = (field, value) => setForm((prev) => ({ ...prev, [field]: value }));
+
+  const curriculum = form.curriculumType === "APTITUDE" ? APTITUDE_CURRICULUM : DSA_CURRICULUM;
+  const selectedCurriculumItem = curriculum.find(c => c.topic === form.topic) || curriculum[0];
 
   const generate = async (event) => {
     event.preventDefault();
@@ -2817,110 +2941,209 @@ export const StudentAiMentorPage = () => {
     }
   };
 
+  const selectedMode = AI_MODES.find(m => m.value === form.mode) || AI_MODES[0];
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <section className="portal-banner">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-100">Skillora AI</p>
-        <h2 className="mt-2 text-3xl font-bold text-white">Placement Preparation Mentor</h2>
-        <p className="mt-2 text-sm text-cyan-50/90">Generate learning notes, adaptive practice, revision sheets, and mock tests from your current performance.</p>
+        <h2 className="mt-2 text-3xl font-bold text-white">🤖 AI Placement Mentor</h2>
+        <p className="mt-2 text-sm text-cyan-50/90">Groq-powered AI generates learning notes, adaptive practice, revision sheets, and mock tests personalized for you.</p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {["🤖 Groq Llama 3.3", "📚 Topic Navigator", "⚡ Adaptive AI", "🏆 Mock Test Mode"].map(tag => (
+            <span key={tag} className="rounded-full bg-white/10 border border-white/20 px-3 py-1 text-xs text-white/90 font-medium">{tag}</span>
+          ))}
+        </div>
       </section>
 
-      <form className="dashboard-card space-y-4 p-5" onSubmit={generate}>
-        <div className="grid gap-3 md:grid-cols-4">
-          <label className="text-sm font-semibold text-slate-700">
-            Mode
-            <select className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2" value={form.mode} onChange={(e) => update("mode", e.target.value)}>
-              <option value="LEARN">Learn</option>
-              <option value="PRACTICE">Practice</option>
-              <option value="ADAPTIVE">Adaptive</option>
-              <option value="REVISION">Revision</option>
-              <option value="MOCK_TEST">Mock Test</option>
-            </select>
-          </label>
-          <label className="text-sm font-semibold text-slate-700">
-            Difficulty
-            <select className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2" value={form.difficulty} onChange={(e) => update("difficulty", e.target.value)}>
-              <option>Adaptive</option>
-              <option>Easy</option>
-              <option>Medium</option>
-              <option>Hard</option>
-            </select>
-          </label>
-          <label className="text-sm font-semibold text-slate-700">
-            Student Level
-            <select className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2" value={form.studentLevel} onChange={(e) => update("studentLevel", e.target.value)}>
-              <option>Beginner</option>
-              <option>Intermediate</option>
-              <option>Advanced</option>
-            </select>
-          </label>
-          <label className="text-sm font-semibold text-slate-700">
-            Questions
-            <input className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2" type="number" min="1" max="30" value={form.numberOfQuestions} onChange={(e) => update("numberOfQuestions", e.target.value)} />
-          </label>
+      <form onSubmit={generate} className="space-y-5">
+        {/* Mode Selector Cards */}
+        <div className="dashboard-card p-5">
+          <h3 className="mb-3 text-sm font-bold text-slate-900 uppercase tracking-wide">Select Mode</h3>
+          <div className="grid grid-cols-2 gap-2 md:grid-cols-5">
+            {AI_MODES.map(mode => (
+              <button
+                key={mode.value}
+                type="button"
+                onClick={() => update("mode", mode.value)}
+                className={`rounded-xl p-3 text-left transition hover:scale-[1.02] ${
+                  form.mode === mode.value
+                    ? `bg-gradient-to-br ${mode.color} text-white shadow-md`
+                    : "border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                }`}
+              >
+                <p className="text-xl mb-1">{mode.icon}</p>
+                <p className="text-xs font-bold">{mode.label}</p>
+                <p className={`text-[10px] mt-0.5 ${form.mode === mode.value ? "text-white/80" : "text-slate-500"}`}>{mode.desc}</p>
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="grid gap-3 md:grid-cols-2">
-          <label className="text-sm font-semibold text-slate-700">
-            Topic
-            <input className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2" value={form.topic} onChange={(e) => update("topic", e.target.value)} />
-          </label>
-          <label className="text-sm font-semibold text-slate-700">
-            Subtopic
-            <input className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2" value={form.subtopic} onChange={(e) => update("subtopic", e.target.value)} />
-          </label>
+        {/* Curriculum Navigator */}
+        <div className="dashboard-card p-5">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">📚 Topic Curriculum</h3>
+            <div className="flex gap-1 rounded-lg bg-slate-100 p-1">
+              {["APTITUDE", "DSA"].map(type => (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => { update("curriculumType", type); update("topic", type === "APTITUDE" ? "Percentages" : "Arrays"); }}
+                  className={`rounded px-3 py-1 text-xs font-semibold transition ${
+                    form.curriculumType === type ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"
+                  }`}
+                >
+                  {type === "APTITUDE" ? "📊 Aptitude" : "💻 DSA"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {curriculum.map(item => (
+              <button
+                key={item.topic}
+                type="button"
+                onClick={() => { update("topic", item.topic); update("subtopic", item.subtopics[0]); }}
+                className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+                  form.topic === item.topic
+                    ? "bg-slate-900 text-white shadow-sm"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                }`}
+              >
+                {item.topic}
+              </button>
+            ))}
+          </div>
+
+          {/* Subtopic chips */}
+          {selectedCurriculumItem && (
+            <div>
+              <p className="text-xs font-semibold text-slate-500 uppercase mb-2">Sub-topics in {form.topic}:</p>
+              <div className="flex flex-wrap gap-1.5">
+                {selectedCurriculumItem.subtopics.map(sub => (
+                  <button
+                    key={sub}
+                    type="button"
+                    onClick={() => update("subtopic", sub)}
+                    className={`rounded-full border px-2.5 py-1 text-xs font-medium transition ${
+                      form.subtopic === sub
+                        ? "border-teal-500 bg-teal-50 text-teal-700"
+                        : "border-slate-200 bg-white text-slate-600 hover:border-teal-300"
+                    }`}
+                  >
+                    {sub}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
-        <div className="grid gap-3 md:grid-cols-3">
-          <label className="text-sm font-semibold text-slate-700">
-            Correct
-            <input className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2" type="number" min="0" value={form.correct} onChange={(e) => update("correct", e.target.value)} />
-          </label>
-          <label className="text-sm font-semibold text-slate-700">
-            Wrong
-            <input className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2" type="number" min="0" value={form.wrong} onChange={(e) => update("wrong", e.target.value)} />
-          </label>
-          <label className="text-sm font-semibold text-slate-700">
-            Accuracy %
-            <input className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2" type="number" min="0" max="100" value={form.accuracy} onChange={(e) => update("accuracy", e.target.value)} />
-          </label>
+        {/* Settings row */}
+        <div className="dashboard-card p-5">
+          <h3 className="mb-3 text-sm font-bold text-slate-900 uppercase tracking-wide">⚙️ Configuration</h3>
+          <div className="grid gap-3 md:grid-cols-4">
+            <label className="text-sm font-semibold text-slate-700">
+              Questions
+              <input className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" type="number" min="1" max="30" value={form.numberOfQuestions} onChange={(e) => update("numberOfQuestions", e.target.value)} />
+            </label>
+            <label className="text-sm font-semibold text-slate-700">
+              Difficulty
+              <select className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" value={form.difficulty} onChange={(e) => update("difficulty", e.target.value)}>
+                <option>Adaptive</option>
+                <option>Easy</option>
+                <option>Medium</option>
+                <option>Hard</option>
+              </select>
+            </label>
+            <label className="text-sm font-semibold text-slate-700">
+              Student Level
+              <select className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" value={form.studentLevel} onChange={(e) => update("studentLevel", e.target.value)}>
+                <option>Beginner</option>
+                <option>Intermediate</option>
+                <option>Advanced</option>
+              </select>
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              <label className="text-sm font-semibold text-slate-700">
+                Correct
+                <input className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" type="number" min="0" value={form.correct} onChange={(e) => update("correct", e.target.value)} />
+              </label>
+              <label className="text-sm font-semibold text-slate-700">
+                Wrong
+                <input className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" type="number" min="0" value={form.wrong} onChange={(e) => update("wrong", e.target.value)} />
+              </label>
+              <label className="text-sm font-semibold text-slate-700">
+                Acc %
+                <input className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" type="number" min="0" max="100" value={form.accuracy} onChange={(e) => update("accuracy", e.target.value)} />
+              </label>
+            </div>
+          </div>
+
+          <div className="mt-4 grid gap-3 lg:grid-cols-2">
+            <label className="text-sm font-semibold text-slate-700">
+              Weak Topics (one per line)
+              <textarea className="mt-1 h-20 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" value={form.weakTopics} onChange={(e) => update("weakTopics", e.target.value)} />
+            </label>
+            <label className="text-sm font-semibold text-slate-700">
+              Previous Topics Covered
+              <textarea className="mt-1 h-20 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" value={form.previousTopicsCovered} onChange={(e) => update("previousTopicsCovered", e.target.value)} />
+            </label>
+          </div>
         </div>
 
-        <div className="grid gap-3 lg:grid-cols-3">
-          <label className="text-sm font-semibold text-slate-700">
-            Previous Topics Covered
-            <textarea className="mt-1 h-28 w-full rounded-xl border border-slate-200 px-3 py-2" value={form.previousTopicsCovered} onChange={(e) => update("previousTopicsCovered", e.target.value)} />
-          </label>
-          <label className="text-sm font-semibold text-slate-700">
-            Previously Generated Questions
-            <textarea className="mt-1 h-28 w-full rounded-xl border border-slate-200 px-3 py-2" value={form.previouslyGeneratedQuestions} onChange={(e) => update("previouslyGeneratedQuestions", e.target.value)} />
-          </label>
-          <label className="text-sm font-semibold text-slate-700">
-            Weak Topics
-            <textarea className="mt-1 h-28 w-full rounded-xl border border-slate-200 px-3 py-2" value={form.weakTopics} onChange={(e) => update("weakTopics", e.target.value)} />
-          </label>
+        {/* CTA + Summary */}
+        <div className="flex items-center gap-4">
+          <button
+            type="submit"
+            disabled={loading}
+            className={`flex items-center gap-2 rounded-xl px-8 py-3 font-bold text-white shadow-lg transition hover:scale-[1.02] disabled:opacity-60 ${
+              loading ? "bg-slate-400" : `bg-gradient-to-r ${selectedMode.color}`
+            }`}
+          >
+            {loading ? (
+              <><span className="animate-spin text-lg">⚙️</span> Generating...</>
+            ) : (
+              <><span>{selectedMode.icon}</span> Generate {selectedMode.label} Content</>
+            )}
+          </button>
+          <div className="text-sm text-slate-500">
+            <span className="font-medium text-slate-700">{form.topic}</span> → <span>{form.subtopic}</span>
+          </div>
         </div>
 
-        {error ? <p className="text-sm text-rose-600">{error}</p> : null}
-        <button type="submit" disabled={loading} className="rounded-xl bg-teal-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-teal-600 disabled:opacity-60">
-          {loading ? "Generating..." : "Generate Mentor Plan"}
-        </button>
+        {error && (
+          <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
+            ⚠️ {error}
+          </div>
+        )}
       </form>
 
-      {result ? (
-        <section className="dashboard-card p-5">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-teal-700">{result.mode} | {result.topic}</p>
-              <h3 className="text-xl font-bold text-slate-900">Generated Guidance</h3>
+      {result && (
+        <section className="dashboard-card overflow-hidden">
+          <div className="border-b border-slate-100 p-5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-teal-700">{result.mode} | {result.topic}</p>
+                <h3 className="text-xl font-bold text-slate-900">AI-Generated Guidance</h3>
+                <p className="text-sm text-slate-500">{result.subtopic}</p>
+              </div>
+              <div className="flex gap-2">
+                <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                  result.aiGenerated ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"
+                }`}>
+                  {result.aiGenerated ? "🤖 AI Generated" : "📦 Offline Template"}
+                </span>
+              </div>
             </div>
-            <span className={`rounded-full px-3 py-1 text-xs font-semibold ${result.aiGenerated ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"}`}>
-              {result.aiGenerated ? "AI generated" : "Offline template"}
-            </span>
           </div>
-          <MentorMarkdown content={result.content} />
+          <div className="p-5">
+            <MentorMarkdown content={result.content} />
+          </div>
         </section>
-      ) : null}
+      )}
     </div>
   );
 };

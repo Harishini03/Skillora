@@ -1167,33 +1167,77 @@ export const StaffTalentPoolPage = () => {
 
         <div className="space-y-4">
           <div className="dashboard-card p-4">
-            <h3 className="font-semibold text-slate-900">Candidate Insight</h3>
-            {!candidate ? <p className="mt-2 text-sm text-slate-600">Select a candidate from the stream.</p> : (
-              <div className="mt-3 space-y-2 text-sm text-slate-700">
-                <p className="text-base font-semibold text-slate-900">{candidate.name}</p>
-                <p>{candidate.department}</p>
-                <RiskBadge readiness={candidate.readiness} />
-                <p>Readiness: {candidate.readiness}%</p>
-                <p>Coding: {candidate.coding}% | Aptitude: {candidate.aptitude}%</p>
-                <p>Soft Skills: {candidate.softSkills}%</p>
-                <p className="text-xs text-slate-500">Weak areas: {(candidate.weakAreas || []).join(", ")}</p>
-                <button type="button" className="rounded-xl bg-slate-900 px-3 py-2 text-sm font-semibold text-white" onClick={addWatch}>Add to Watchlist</button>
+            <h3 className="font-semibold text-slate-900 mb-3">🔍 Candidate Insight</h3>
+            {!candidate ? (
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <span className="text-4xl mb-2">👤</span>
+                <p className="text-sm text-slate-500">Click Inspect on any candidate to view their profile.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-teal-600 to-emerald-500 text-white font-bold text-lg flex-shrink-0">
+                    {(candidate.name || "?")[0]}
+                  </div>
+                  <div>
+                    <p className="font-bold text-slate-900 text-base">{candidate.name}</p>
+                    <p className="text-xs text-slate-500">{candidate.department}</p>
+                    <div className="mt-1"><RiskBadge readiness={candidate.readiness} /></div>
+                  </div>
+                </div>
+
+                <div className="space-y-2 pt-1">
+                  {[["Readiness", candidate.readiness, "from-teal-500 to-emerald-400"],
+                    ["Aptitude", candidate.aptitude, "from-sky-500 to-blue-400"],
+                    ["Coding", candidate.coding, "from-indigo-500 to-violet-400"],
+                    ["Soft Skills", candidate.softSkills, "from-rose-400 to-pink-400"],
+                  ].map(([label, val, color]) => (
+                    <div key={label}>
+                      <div className="mb-1 flex justify-between text-xs">
+                        <span className="font-medium text-slate-600">{label}</span>
+                        <span className="font-bold text-slate-800">{val || 0}%</span>
+                      </div>
+                      <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                        <div className={`h-1.5 rounded-full bg-gradient-to-r ${color}`} style={{width: `${val||0}%`}} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {Array.isArray(candidate.weakAreas) && candidate.weakAreas.length > 0 && (
+                  <div className="rounded-xl bg-amber-50 border border-amber-100 p-3">
+                    <p className="text-xs font-bold text-amber-700 mb-2">⚠️ Weak Areas</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {candidate.weakAreas.map(w => (
+                        <span key={w} className="rounded-full bg-amber-100 text-amber-800 px-2 py-0.5 text-[10px] font-semibold">{w}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <button type="button" className="w-full rounded-xl bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-700 transition" onClick={addWatch}>
+                  ➕ Add to Watchlist
+                </button>
               </div>
             )}
           </div>
 
           <div className="dashboard-card p-4">
-            <h3 className="font-semibold text-slate-900">Staff Watchlist</h3>
-            <ul className="mt-2 space-y-2 text-sm text-slate-700">
-              {watchlist.length === 0 ? <li>No students in watchlist.</li> : null}
-              {watchlist.map((item) => (
-                <li key={item.studentId} className="rounded-xl border border-slate-200 bg-white px-3 py-2">
-                  <p className="font-semibold text-slate-900">{item.name}</p>
-                  <p>{item.department}</p>
-                  <p className="text-xs text-slate-500">Readiness {item.readiness}%</p>
-                </li>
-              ))}
-            </ul>
+            <h3 className="font-semibold text-slate-900 mb-3">📄 Staff Watchlist</h3>
+            {watchlist.length === 0 ? (
+              <p className="text-sm text-slate-500 text-center py-4">No students in watchlist yet.</p>
+            ) : (
+              <ul className="space-y-2">
+                {watchlist.map((item) => (
+                  <li key={item.studentId} className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+                    <div>
+                      <p className="font-semibold text-slate-900 text-sm">{item.name}</p>
+                      <p className="text-xs text-slate-500">{item.department} · {item.readiness}% ready</p>
+                    </div>
+                    <RiskBadge readiness={item.readiness} />
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       </div>
@@ -1266,13 +1310,33 @@ export const StaffMonitoringPage = () => {
               <RiskBadge readiness={details.readiness} />
             </div>
             <div className="mt-3 space-y-2">
-              <ProgressBar label="Readiness" value={details.readiness || 0} />
-              <ProgressBar label="Aptitude" value={details.aptitude || 0} />
-              <ProgressBar label="Coding" value={details.coding || 0} />
-              <ProgressBar label="Soft Skills" value={details.softSkills || 0} />
+              {[["Readiness", details.readiness||0, "from-teal-500 to-emerald-400"],
+                ["Aptitude", details.aptitude||0, "from-sky-500 to-blue-400"],
+                ["Coding", details.coding||0, "from-indigo-500 to-violet-400"],
+                ["Soft Skills", details.softSkills||0, "from-rose-400 to-pink-400"],
+              ].map(([label, val, color]) => (
+                <div key={label}>
+                  <div className="mb-1 flex justify-between text-sm">
+                    <span className="font-medium text-slate-600">{label}</span>
+                    <span className="font-bold text-slate-800">{val}%</span>
+                  </div>
+                  <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
+                    <div className={`h-2 rounded-full bg-gradient-to-r ${color} transition-all duration-700`} style={{width: `${val}%`}} />
+                  </div>
+                </div>
+              ))}
             </div>
             <p className="mt-3 text-sm text-slate-700">Average recent accuracy: <span className="font-semibold">{avgAccuracy}%</span></p>
-            <p className="mt-2 text-sm text-slate-700">Weak areas: {(details.weakAreas || []).join(", ")}</p>
+            {Array.isArray(details.weakAreas) && details.weakAreas.length > 0 && (
+              <div className="mt-3 rounded-xl bg-amber-50 border border-amber-100 p-3">
+                <p className="text-xs font-bold text-amber-700 mb-2">⚠️ Weak Areas</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {details.weakAreas.map(w => (
+                    <span key={w} className="rounded-full bg-amber-100 text-amber-800 px-2 py-0.5 text-[10px] font-semibold">{w}</span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="dashboard-card h-80 p-4">

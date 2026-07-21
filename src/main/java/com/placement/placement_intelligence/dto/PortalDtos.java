@@ -43,11 +43,13 @@ public final class PortalDtos {
             String requiredSkills,
             JobType jobType,
             String department,
+            String companyName,
             String recruiterName,
             boolean active,
             LocalDateTime createdAt
     ) {
     }
+
 
     public record CreateJobPostingRequest(
             String title,

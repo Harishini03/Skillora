@@ -22,6 +22,8 @@ import com.placement.placement_intelligence.repository.JobPostingRepository;
 import com.placement.placement_intelligence.repository.PortalNotificationRepository;
 import com.placement.placement_intelligence.repository.StudentRepository;
 import com.placement.placement_intelligence.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +34,8 @@ import java.util.Locale;
 
 @Service
 public class PortalService {
+
+    private static final Logger logger = LoggerFactory.getLogger(PortalService.class);
 
     private final CurrentUserService currentUserService;
     private final StudentRepository studentRepository;
@@ -196,7 +200,24 @@ public class PortalService {
                     .orElseThrow(() -> new IllegalArgumentException("Company not found"));
             job.setCompany(company);
         }
-        return toJobPostingResponse(jobPostingRepository.save(job));
+        PortalDtos.JobPostingResponse saved = toJobPostingResponse(jobPostingRepository.save(job));
+        // Notify all active students about the new job posting
+        notifyAllStudentsNewJob(job);
+        return saved;
+    }
+
+    private void notifyAllStudentsNewJob(JobPosting job) {
+        String companyLabel = job.getCompany() != null ? " at " + job.getCompany().getName() : "";
+        String msg = "🚀 New job posted: \"" + job.getTitle() + "\"" + companyLabel + ". Check the Jobs Board and apply now!";
+        try {
+            studentRepository.findAll().forEach(s -> {
+                if (s.getUser() != null && Boolean.TRUE.equals(s.getUser().getActive())) {
+                    notifyUser(s.getUser(), "NEW_JOB", msg);
+                }
+            });
+        } catch (Exception ex) {
+            logger.warn("Failed to notify students of new job: {}", ex.getMessage());
+        }
     }
 
     @Transactional(readOnly = true)
@@ -396,6 +417,7 @@ public class PortalService {
                 job.getRequiredSkills(),
                 job.getJobType(),
                 job.getDepartment() == null ? null : job.getDepartment().getName(),
+                job.getCompany() != null ? job.getCompany().getName() : "Skillora Partner",
                 job.getRecruiter().getName(),
                 Boolean.TRUE.equals(job.getActive()),
                 job.getCreatedAt()

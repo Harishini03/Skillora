@@ -92,7 +92,11 @@ public class SecurityConfig {
                         // Notifications (all authenticated users)
                         .requestMatchers("/api/notifications/send-to-all").hasAnyRole("STAFF","RECRUITER")
                         .requestMatchers("/api/notifications/**").authenticated()
-                        
+
+                        // Legacy alias endpoints (used by StaffAliasController and StudentAliasController)
+                        .requestMatchers("/student-details", "/top-students", "/department-stats").hasAnyRole("STAFF", "RECRUITER")
+                        .requestMatchers("/dashboard", "/tests", "/submit-test", "/progress", "/code/execute").hasAnyRole("STUDENT", "STAFF")
+
                         // All other requests require authentication
                         .anyRequest().authenticated()
                 )

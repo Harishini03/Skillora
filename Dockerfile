@@ -55,14 +55,12 @@ RUN chown skillora:skillora app.jar
 # Runtime user
 USER skillora
 
-# Port
-EXPOSE 8080
+# Default port (Render overrides this via its own PORT env var)
+ENV PORT=8080
+EXPOSE $PORT
 
-# Health check (uses actuator health endpoint)
-HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=3 \
-  CMD wget -q --spider http://localhost:${PORT:-8080}/actuator/health || exit 1
+# JVM tuning for containers (reduced for Render free tier 512MB RAM)
+ENV JAVA_OPTS="-Xms128m -Xmx384m -XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0"
 
-# JVM tuning for containers
-ENV JAVA_OPTS="-Xms256m -Xmx512m -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
-
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar -Dspring.profiles.active=prod app.jar"]
+# Start Spring Boot on the PORT that Render assigns
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Dserver.port=$PORT -jar app.jar"]

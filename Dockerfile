@@ -60,7 +60,7 @@ EXPOSE 8080
 
 # Health check (uses actuator health endpoint)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=3 \
-  CMD wget -q --spider http://localhost:8080/actuator/health || exit 1
+  CMD wget -q --spider http://localhost:${PORT:-8080}/actuator/health || exit 1
 
 # JVM tuning for containers
 ENV JAVA_OPTS="-Xms256m -Xmx512m -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
